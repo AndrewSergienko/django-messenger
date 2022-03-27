@@ -14,15 +14,15 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
+    'account',
+    'channels',
+    'chat',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'account',
-    'channels',
-    'chat',
 ]
 
 MIDDLEWARE = [
@@ -118,3 +118,5 @@ CHANNEL_LAYERS = {
         }
     }
 }
+
+AUTH_USER_MODEL = 'account.CustomUser'
