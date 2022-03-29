@@ -3,9 +3,9 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
-
+app_name = 'account'
 urlpatterns = [
-
+    path('login', views.user_login, name='user_login')
 ]
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, documet_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

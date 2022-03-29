@@ -11,10 +11,11 @@ def user_login(request):
         if form.is_valid():
             cd = form.cleaned_data
             user = authenticate(request,
-                                username=cd['username'],
+                                username=cd['login'],
                                 password=cd['password'])
             if user is not None:
                 if user.is_active:
+                    login(request, user)
                     return HttpResponse('Вхід успішний')
                 else:
                     return HttpResponse('Аккаунт заблокований')
@@ -23,4 +24,4 @@ def user_login(request):
     else:
         form = CustomUserLoginForm()
     context = {'form': form}
-    return render(request, context=context)
+    return render(request, 'account/login.html', context=context)
