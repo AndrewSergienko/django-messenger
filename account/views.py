@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from .models import CustomUser
 from .forms import CustomUserLoginForm, CustomUserRegistrationForm
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 
 def user_login(request):
