@@ -1,0 +1,9 @@
+{% load static %}
+
+{% block title %}Chats{% endblock %}
+
+{% block content %}
+    {% for chat in chats %}
+        {{ chat }}
+    {% endfor %}
+{% endblock %}

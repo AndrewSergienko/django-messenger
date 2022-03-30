@@ -7,14 +7,14 @@ from .models import CustomUser
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm):
         model = CustomUser
-        fields = ('username', 'email')
+        fields = '__all__'
 
 
 # Для адмінки
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
-        fields = ('username', 'email')
+        fields = '__all__'
 
 
 class CustomUserLoginForm(forms.Form):
@@ -30,6 +30,10 @@ class CustomUserRegistrationForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ('username', 'first_name', 'last_name', 'email', 'phone')
+
+    def __init__(self, post=None):
+        super().__init__(post)
+        self.fields['username'].help_text = None
 
     def clean_password2(self):
         cd = self.cleaned_data
