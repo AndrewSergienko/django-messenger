@@ -15,7 +15,6 @@ def chats(request):
     return render(request, 'chat/chats.html', context=context)
 
 
-@ajax_required
 @login_required
 def create_chat(request, user_id):
     try:
@@ -25,9 +24,10 @@ def create_chat(request, user_id):
             return JsonResponse({'status': 'error', 'desc': 'ChatArleadyExist'})
         else:
             chat = Chat()
+            chat.save()
             chat.users.add(request.user, user)
             chat.save()
-            return JsonResponse({'status': 'success'})
+            return JsonResponse({'status': 'ok'})
     except CustomUser.DoesNotExist:
         return JsonResponse({'status': 'error', 'desc': 'UserDontExist'})
 
