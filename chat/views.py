@@ -32,10 +32,5 @@ def create_chat(request, user_id):
         return JsonResponse({'status': 'error', 'desc': 'UserDontExist'})
 
 
-def index(request):
-    return render(request, 'chat/index.html')
-
-
-def room(request, room_name):
-    context = {'room_name': room_name}
-    return render(request, 'chat/room.html', context=context)
+def room(request):
+    return render(request, 'chat/room.html')
