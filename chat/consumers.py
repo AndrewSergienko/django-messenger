@@ -8,28 +8,13 @@ from account.models import CustomUser
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        '''# Отримyє root_name з URL маршрута
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = f'chat_{self.room_name}'
-
-        # Підключення до групи.
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name)'''
-
+        # Створює поле [user, channel_name] для подальшої ідентифікації
         await self.create_channel_user()
-
-        # Приймає підключення WebSocket.
-        # Якщо не викликати, то підключення буде відхилено
         await self.accept()
 
     async def disconnect(self, code):
-        '''await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name)'''
         await self.delete_channel_user()
 
-    # Отримує введене повідомлення від JS і відсилає групі chat_message
     async def receive(self, text_data=None, bytes_data=None):
         try:
             text_data_json = json.loads(text_data)
@@ -41,25 +26,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                               'type': 'chat_message',
                                               'message': message
                                           })
-
+        # Якщо не зловить помилку, то це приведе до websocket disconect
         except (CustomUser.DoesNotExist, ChannelUser.DoesNotExist):
-            await print('ERROR')
-        '''await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                # type - ім'я метода, який повинен викликатись у отримувачів
-                'type': 'chat_message',
-                'message': message
-            })'''
+            pass
 
-    # Отримує повідомлення від channel_layer.group_send і відсилає його в JS
     async def chat_message(self, event):
+        # Метод викликається, якщо ловить повідомлення від іншого користувача
         message = event['message']
 
+        # Надсилається повідомлення до JS клієнта в браузері
         await self.send(text_data=json.dumps({
             'message': message
         }))
 
+    # Django ORM не підтримує асинхронність, тому потрібно використовувати декоратори
     @database_sync_to_async
     def create_channel_user(self):
         ChannelUser.objects.get_or_create(user=self.scope['user'], channel_name=self.channel_name)
