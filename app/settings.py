@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
+    'app'
 ]
 
 MIDDLEWARE = [
@@ -104,8 +105,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = 'static/'
+STATIC_URL = 'templates/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'templates',
+]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
