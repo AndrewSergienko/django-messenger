@@ -1,10 +1,8 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from .models import Chat
 from account.models import CustomUser
-from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
-from common.decorators import ajax_required
+from django.http import JsonResponse
 
 
 @login_required(login_url='/login/')
