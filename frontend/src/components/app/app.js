@@ -30,16 +30,16 @@ export default class App extends Component {
    }
       
    render() {
-      // const myHeaders = new Headers();
-      // myHeaders.append('Content-Type', 'application/json');
-      // myHeaders.append('Authorization', `Token ${this.state.authToken}`);
+       const myHeaders = new Headers();
+       myHeaders.append('Content-Type', 'application/json');
+       myHeaders.append('Authorization', `Token ${this.state.authToken}`);
 
-      // const result = fetch("http://127.0.0.1:8000/api/chats/", {
-      //    method: "GET",
-      //    headers: myHeaders
-      // })
-      //    .then(res => res.json())
-      //    .then(res => console.log(res))
+       const result = fetch("http://127.0.0.1:8000/api/chats/", {
+          method: "GET",
+          headers: myHeaders
+       })
+          .then(res => res.json())
+          .then(res => console.log(res))
 
       return (
          <div className="App">
