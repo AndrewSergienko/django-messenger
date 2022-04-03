@@ -5,6 +5,7 @@ from . import views
 app_name = 'api'
 urlpatterns = [
     path('chats/', views.ChatList.as_view()),
+    path('user/login/', views.UserLogin.as_view())
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
