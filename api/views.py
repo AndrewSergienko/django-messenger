@@ -7,6 +7,7 @@ from account.models import CustomUser
 from django.http import Http404
 from chat.models import Chat, Message
 from account.models import CustomUser
+from django.contrib.auth import authenticate, login, logout
 
 
 class ChatList(APIView):
@@ -31,6 +32,20 @@ class ChatDetail(APIView):
         chat = get_object_or_404(Chat, id=chat_id)
         serializer = ChatSerializer()
 
+
+class UserLogin(APIView):
+    def post(self, request):
+        user = authenticate(request,
+                            username=request.data['login'],
+                            password=request.data['password'])
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return Response({'status': 'ok'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'status': 'error'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response({'status': 'error'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 
