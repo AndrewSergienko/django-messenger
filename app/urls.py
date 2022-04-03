@@ -22,6 +22,5 @@ urlpatterns = [
     path('chat/', include('chat.urls', namespace='chat')),
     path('chats/', chat_views.chats, name='chats'),
     path('account/', include('account.urls', namespace='account')),
-    path('api/', include('api.urls', namespace='api')),
-    path('', include('frontend.urls', namespace='front'))
+    path('api/', include('api.urls', namespace='api'))
 ]
