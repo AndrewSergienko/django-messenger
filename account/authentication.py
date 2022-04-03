@@ -1,5 +1,6 @@
 from .models import CustomUser
 from django.db.models import Q
+from rest_framework.authtoken.models import Token
 
 
 class EmailOrPhoneAuthBackend:
@@ -7,7 +8,8 @@ class EmailOrPhoneAuthBackend:
         try:
             user = CustomUser.objects.get(Q(email=username) | Q(phone=username))
             if user.check_password(password):
-                return user
+                token = Token.objects.get_or_create(user=user)
+                return (user, token)
             return
         except CustomUser.DoesNotExist:
             return None
