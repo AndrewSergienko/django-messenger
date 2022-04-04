@@ -128,7 +128,6 @@ CHANNEL_LAYERS = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    'account.authentication.EmailOrPhoneAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 

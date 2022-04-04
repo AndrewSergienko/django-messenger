@@ -1,33 +1,36 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import Chat
+from .serializers import ChatSerializer
+from .models import Chat, Message
 from account.models import CustomUser
-from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
-@login_required(login_url='/login/')
-def chats(request):
-    user = request.user
-    chats = user.chats.all()
-    context = {'chats': chats}
-    return render(request, 'chat/chats.html', context=context)
+class ChatList(APIView):
+    def get(self, request, format=None):
+        chats = request.user.chats.all()
+        serializer = ChatSerializer(chats, many=True)
+        return Response(serializer.data)
+
+    # Create chat
+    def post(self, request, format=None):
+        serializer = ChatSerializer(data=request.data)
+        if serializer.is_valid():
+            if request.data['user_id']:
+                user = get_object_or_404(CustomUser, id=request.data['user_id'])
+                chat = serializer.save()
+                chat.users.add(request.user, user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(data=status.HTTP_400_BAD_REQUEST)
 
 
-@login_required
-def create_chat(request, user_id):
-    try:
-        user = CustomUser.objects.get(id=user_id)
-        chat = Chat.objects.filter(users=request.user).filter(users=user)
-        if chat:
-            return JsonResponse({'status': 'error', 'desc': 'ChatArleadyExist'})
-        else:
-            chat = Chat()
-            chat.save()
-            chat.users.add(request.user, user)
-            chat.save()
-            return JsonResponse({'status': 'ok'})
-    except CustomUser.DoesNotExist:
-        return JsonResponse({'status': 'error', 'desc': 'UserDontExist'})
+class ChatDetail(APIView):
+    def get(self, request, pk, format=None):
+        chat = get_object_or_404(Chat, id=pk)
+        if request.user in chat.users.all():
+            serializer = ChatSerializer(chat)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 def room(request):
