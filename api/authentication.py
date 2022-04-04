@@ -18,4 +18,6 @@ class EmailOrPhoneAuthentication(authentication.BaseAuthentication):
                 return (user, token)
 
         except CustomUser.DoesNotExist:
+            if 'api/users/' in request.path and request.method == 'POST':
+                return None
             raise exceptions.AuthenticationFailed('No such user')
