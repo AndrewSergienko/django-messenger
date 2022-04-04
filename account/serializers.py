@@ -19,4 +19,5 @@ class UserSeralizer(serializers.ModelSerializer):
         return attrs
 
     def save(self, **kwargs):
+        self.validated_data['is_active'] = True
         return CustomUser.objects.create_user(**self.validated_data)
