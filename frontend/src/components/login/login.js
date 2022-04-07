@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-
-import './login.css';
+import styled from 'styled-components';
 
 export default class Login extends Component {
    state = {
@@ -31,36 +30,70 @@ export default class Login extends Component {
             errorMessage = error ? "Incorrect data" : null;
 
       return (
-         <>
-            <form 
-               className='login-form d-flex align-items-center'
-               onSubmit={this.submitForm}>
-               <h2>Login</h2>
-               <small className='info-message'>Not a member? You can register here</small>
-               <div className="form-group login">
-                  <label htmlFor="login-input">Username</label>
-                  <input 
-                     type="text" 
-                     className="form-control" 
-                     id="login-input" 
-                     placeholder="Enter username" 
-                     onChange={this.changeInput}/>
-               </div>
-               <div className="form-group password">
-                  <label htmlFor="password-input">Password</label>
-                  <input 
-                     type="password" 
-                     className="form-control" 
-                     id="password-input" 
-                     placeholder="Enter password" 
-                     onChange={this.changeInput}/>
-               </div>
-               <button 
-                  type="submit" 
-                  className="btn btn-primary btn-for-submit">Login</button>
-               <small className='error-message'>{errorMessage}</small>
-            </form>
-         </>
+         <LoginForm 
+            className='d-flex align-items-center'
+            onSubmit={this.submitForm}>
+            <h2>Login</h2>
+            <InfoMessage>Not a member? You can register here</InfoMessage>
+            <div className="form-group">
+               <label htmlFor="login-input">Username</label>
+               <Input 
+                  type="text" 
+                  className="form-control" 
+                  id="login-input" 
+                  placeholder="Enter username" 
+                  onChange={this.changeInput}/>
+            </div>
+            <div className="form-group">
+               <label htmlFor="password-input">Password</label>
+               <Input 
+                  type="password" 
+                  className="form-control" 
+                  id="password-input" 
+                  placeholder="Enter password" 
+                  onChange={this.changeInput}/>
+            </div>
+            <Submit 
+               type="submit" 
+               className="btn btn-primary">Login</Submit>
+            <Error>{errorMessage}</Error>
+         </LoginForm>
       )
    }
 }
+
+// Styled components
+const LoginForm = styled.form`
+      flex-direction: column;
+      margin: 50px auto 0 auto;
+      padding-top: 40px;
+
+      width: 450px;
+      height: 500px;
+
+      border-radius: 5px;
+      background: #fff;
+
+      box-shadow: 0px 0px 23px 0px rgba(0, 0, 0, 0.58);
+   `;
+
+const InfoMessage = styled.small`
+   margin: 20px 0 30px 0;
+`;
+
+const Input = styled.input`
+   width: 300px;
+   margin-bottom: 20px;
+`;
+
+const Submit = styled.button`
+   width: 150px;
+   margin-top: 40px;
+`;
+
+const Error = styled.small`
+   margin-top: 20px;
+
+   font-size: 12px;
+   color: #ff0000;
+`;
