@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 
-import './login.css';
+import './registration.css';
 
-export default class Login extends Component {
+export default class Registration extends Component {
    state = {
       username: "",
       password: ""
@@ -33,18 +33,19 @@ export default class Login extends Component {
       return (
          <>
             <form 
-               className='login-form d-flex align-items-center'
+               className='registration-form d-flex align-items-center'
                onSubmit={this.submitForm}>
-               <h2>Login</h2>
-               <small className='info-message'>Not a member? You can register here</small>
-               <div className="form-group login">
+               <h2>Registration</h2>
+               <small className='info-message'>Already a member? You can log in here</small>
+               <div className="form-group registration">
                   <label htmlFor="login-input">Username</label>
                   <input 
                      type="text" 
                      className="form-control" 
                      id="login-input" 
                      placeholder="Enter username" 
-                     onChange={this.changeInput}/>
+                     // onChange={this.changeInput}
+                     />
                </div>
                <div className="form-group password">
                   <label htmlFor="password-input">Password</label>
@@ -53,11 +54,32 @@ export default class Login extends Component {
                      className="form-control" 
                      id="password-input" 
                      placeholder="Enter password" 
-                     onChange={this.changeInput}/>
+                     // onChange={this.changeInput}
+                     />
+               </div>
+               <div className="form-group f-name">
+                  <label htmlFor="f-name-input">First name</label>
+                  <input 
+                     type="text" 
+                     className="form-control" 
+                     id="f-name-input" 
+                     placeholder="Enter first name" 
+                     // onChange={this.changeInput}
+                     />
+               </div>
+               <div className="form-group email">
+                  <label htmlFor="email-input">Email</label>
+                  <input 
+                     type="email" 
+                     className="form-control" 
+                     id="email-input" 
+                     placeholder="Enter email" 
+                     // onChange={this.changeInput}
+                     />
                </div>
                <button 
                   type="submit" 
-                  className="btn btn-primary btn-for-submit">Login</button>
+                  className="btn btn-primary btn-for-submit">Registration</button>
                <small className='error-message'>{errorMessage}</small>
             </form>
          </>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Login from '../login';
+// import Registration from '../registration';
 
 
 export default class App extends Component {
@@ -58,6 +59,7 @@ export default class App extends Component {
          <div className="App">
             {/* {result} */}
             <Login getDataFromForm={this.getDataFromForm} error={this.state.error}/>
+            {/* <Registration/> */}
          </div>
       );
    }
