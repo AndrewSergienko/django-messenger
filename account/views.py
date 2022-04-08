@@ -11,10 +11,10 @@ class UserRegister(APIView):
     permission_classes = [AllowAny]
     def post(self, request, format=None):
         serializer = UserSeralizer(data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'created'}, status=status.HTTP_201_CREATED)
+        return Response({'status': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserDetail(APIView):

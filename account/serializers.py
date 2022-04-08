@@ -9,15 +9,14 @@ class UserSeralizer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs):
-        required_attrs = ['username', 'password', 'first_name']
-        or_attrs = ['phone', 'email']
+        required_attrs = ['email', 'password', 'username', 'first_name']
 
         if not all(attr in attrs.keys() for attr in required_attrs):
             raise serializers.ValidationError('Missig required fields')
-        if not any(attr in attrs.keys() for attr in or_attrs):
-            raise serializers.ValidationError('Phone or email field required')
         return attrs
 
     def save(self, **kwargs):
         self.validated_data['is_active'] = True
-        return CustomUser.objects.create_user(**self.validated_data)
+        user = CustomUser(**self.validated_data)
+        user.set_password(self.validated_data['password'])
+        return user.save()
