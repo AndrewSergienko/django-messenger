@@ -17,6 +17,12 @@ class UserSeralizer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         self.validated_data['is_active'] = True
-        user = CustomUser(**self.validated_data)
+        cleaned_data_keys = ['email', 'username', 'first_name', 'last_name', 'is_active']
+        cleaned_data = {}
+        for key in cleaned_data_keys:
+            if key in self.validated_data:
+                cleaned_data[key] = self.validated_data[key]
+
+        user = CustomUser(**cleaned_data)
         user.set_password(self.validated_data['password'])
         return user.save()
