@@ -7,19 +7,30 @@
 <date> - format: <year>-<month>-<day>T<hour>:<minutes>:<seconds>.<miliseconds>
 Example: 2022-04-04T16:07:03.233482Z
 ```
-
+### Auth
+* `domen/api/auth/`
+  * `POST` - Залогінити юзера
+  ```
+  request form data:
+  - email
+  - password
+  
+  response:
+  OK - HTTP 200
+  - token
+  
+  ERROR - HTTP 401
+  ```
 ### User
 * `domen/api/users/`</br>
   * `POST` - Створити юзера</br>
   ```
   request form data:
+  - email
   - username
   - password
   - first_name
   - last_name (opt)
-  - phone (opt)
-  - email (opt)
-  (phone і email по окремості не обов'язкові, але потрібно щоб був один із них)
   
   response: 
   OK - HTTP 201
