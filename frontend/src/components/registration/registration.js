@@ -7,26 +7,51 @@ export default class Registration extends Component {
       first_name: "",
       username: "",
       password: "",
+      confirm_password: "",
       email: ""
    }
 
-   // // Write entered data in inputs to state
-   // changeInput = (event) => {
-   //    const target = event.target;
-      
-   //    if (target.id === "login-input") {
-   //       this.setState({username: target.value});
-   //    } else if (target.id === "password-input") {
-   //       this.setState({password: target.value});
-   //    }
-   // }
+   // Write entered data in inputs to state
+   changeInput = (event) => {
+      const target = event.target;
 
-   // // When form is submit
-   // submitForm = (event) => {
-   //    event.preventDefault();
+      switch (target.id) {
+         case "f-name-input":
+            this.setState({first_name: target.value});
+            break;
+         case "username-input":
+            this.setState({username: target.value});
+            break;
+         case "password-input":
+            this.setState({password: target.value});
+            break;
+         case "c-password-input":
+            this.setState({confirm_password: target.value});
+            break;
+         case "email-input":
+            this.setState({email: target.value});
+            break;
+         default:
+            break;
+      }
+   }
 
-   //    this.props.getDataFromForm(this.state.username, this.state.password);
-   // }
+   // When form is submit
+   submitForm = (event) => {
+      event.preventDefault();
+
+      console.log(this.state);
+
+      this.props.registrationUser(this.state.email, this.state.username, this.state.password, this.state.first_name);
+
+      this.setState({
+         first_name: "",
+         username: "",
+         password: "",
+         confirm_password: "",
+         email: ""
+      });
+   }
 
    render() {
       const { error } = this.props,
@@ -43,36 +68,41 @@ export default class Registration extends Component {
                type="text" 
                className="form-control" 
                id="f-name-input" 
-               placeholder="First name" 
-               // onChange={this.changeInput}
+               placeholder="First name"
+               value={this.state.first_name}
+               onChange={this.changeInput}
             />
             <Input 
                type="text" 
                className="form-control" 
-               id="login-input" 
-               placeholder="Username" 
-               // onChange={this.changeInput}
+               id="username-input" 
+               placeholder="Username"
+               value={this.state.username}
+               onChange={this.changeInput}
             />
             <Input 
                type="password" 
                className="form-control" 
                id="password-input" 
-               placeholder="Password" 
-               // onChange={this.changeInput}
+               placeholder="Password"
+               value={this.state.password}
+               onChange={this.changeInput}
             />
             <Input 
                type="password" 
                className="form-control" 
-               id="password-input" 
-               placeholder="Confirm password" 
-               // onChange={this.changeInput}
+               id="c-password-input" 
+               placeholder="Confirm password"
+               value={this.state.confirm_password}
+               onChange={this.changeInput}
             />
             <Input 
                type="email" 
                className="form-control" 
                id="email-input" 
-               placeholder="Email" 
-               // onChange={this.changeInput}
+               placeholder="Email"
+               value={this.state.email}
+               onChange={this.changeInput}
             />
             <Submit 
                type="submit" 

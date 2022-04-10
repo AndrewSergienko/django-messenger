@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 
-import Registration from '../registration';
-
 export default class Login extends Component {
    state = {
       username: "",
@@ -24,7 +22,7 @@ export default class Login extends Component {
    submitForm = (event) => {
       event.preventDefault();
 
-      this.props.getDataFromForm(this.state.username, this.state.password);
+      this.props.getDataFromLoginForm(this.state.username, this.state.password);
    }
 
    render() {
