@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import Login from '../login';
-// import Registration from '../registration';
+import Registration from '../registration';
 
 export default class App extends Component {
    state = {
       authToken: "",
-      error: false
+      error: false,
+      redirect: false
    }
 
    // Get token for authorization
@@ -52,6 +53,10 @@ export default class App extends Component {
          reg.json().then(res => console.log(res.status))
       }
    }
+
+   redirectToOtherPage = () => {
+      this.setState({redirect: !this.state.redirect});
+   }
       
    render() {
       //  const myHeaders = new Headers();
@@ -65,11 +70,13 @@ export default class App extends Component {
       //     .then(res => res.json())
       //     .then(res => console.log(res))
 
+      const { redirect } = this.state,
+            page = redirect ? <Registration registrationUser={this.registrationUser} error={this.state.error} redirectToOtherPage={this.redirectToOtherPage}/> : 
+                              <Login loginUser={this.loginUser} error={this.state.error} redirectToOtherPage={this.redirectToOtherPage}/>;
+
       return (
          <div className="App">
-            {/* {result} */}
-            <Login loginUser={this.loginUser} error={this.state.error}/>
-            {/* <Registration registrationUser={this.registrationUser} error={this.state.error}/> */}
+            { page }
          </div>
       );
    }

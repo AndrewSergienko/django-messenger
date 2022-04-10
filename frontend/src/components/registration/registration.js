@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import {Form, InfoMessage, Input, Submit, Error} from '../login/login';
+import { Form, InfoMessage, Input, Submit, Error, RedirectSpan } from '../login/login';
 
 export default class Registration extends Component {
    state = {
@@ -65,7 +65,9 @@ export default class Registration extends Component {
             className='registration-form d-flex align-items-center'
             onSubmit={this.submitForm}>
             <h2>Registration</h2>
-            <InfoMessage className='info-message'>Already a member? You can log in here</InfoMessage>
+            <InfoMessage className='info-message'>Already a member? You can log in 
+               <RedirectSpan onClick={this.props.redirectToOtherPage}> here</RedirectSpan>
+            </InfoMessage>
             <Input 
                type="text" 
                className="form-control"

@@ -34,7 +34,9 @@ export default class Login extends Component {
             className='d-flex align-items-center'
             onSubmit={this.submitForm}>
             <h2>Login</h2>
-            <InfoMessage>Not a member? You can register here</InfoMessage>
+            <InfoMessage>Not a member? You can register 
+               <RedirectSpan onClick={this.props.redirectToOtherPage}> here</RedirectSpan>
+            </InfoMessage>
             <div className="form-group">
                <label htmlFor="email-input">Email</label>
                <Input 
@@ -96,4 +98,9 @@ export const Error = styled.small`
 
    font-size: 12px;
    color: #ff0000;
+`;
+
+export const RedirectSpan = styled.span`
+   font-weight: bold;
+   cursor: pointer;
 `;
