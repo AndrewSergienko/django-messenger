@@ -5,13 +5,11 @@ import Login from '../login';
 export default class App extends Component {
    state = {
       authToken: "",
-      email: "",
-      password: "",
       error: false
    }
 
    // Get token for authorization
-   getToken = async (email, password) => {
+   loginUser = async (email, password) => {
       let url = 'http://127.0.0.1:8000/api/auth/',
           data = {email, password};
 
@@ -21,25 +19,16 @@ export default class App extends Component {
          headers: {
             'Content-Type': 'application/json'
          }
-      }).then(result => result.json());
+      }).then(response => response.json());
 
       // if don't get show error message
       if (auth.status === 'Invalid data') {
          this.setState({error: true});
       } else {
          this.setState({error: false});
-         return auth;
+         this.setState({ authToken: auth.token });
+         console.log(this.state.authToken);
       }
-   }
-
-   // Get email and password from login form
-   getDataFromLoginForm = async (email, password) => {
-      // Send request
-      await this.getToken(email, password)
-            .then(result => {
-               this.setState({ authToken: result.token });
-               console.log(this.state.authToken);
-            });
    }
 
    // Registration user
@@ -79,7 +68,7 @@ export default class App extends Component {
       return (
          <div className="App">
             {/* {result} */}
-            <Login getDataFromLoginForm={this.getDataFromLoginForm} error={this.state.error}/>
+            <Login loginUser={this.loginUser} error={this.state.error}/>
             {/* <Registration registrationUser={this.registrationUser} error={this.state.error}/> */}
          </div>
       );
