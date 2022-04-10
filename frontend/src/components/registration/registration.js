@@ -44,18 +44,20 @@ export default class Registration extends Component {
 
       this.props.registrationUser(this.state.email, this.state.username, this.state.password, this.state.first_name);
 
-      this.setState({
-         first_name: "",
-         username: "",
-         password: "",
-         confirm_password: "",
-         email: ""
-      });
+      if (!this.props.error) {
+         this.setState({
+            first_name: "",
+            username: "",
+            password: "",
+            confirm_password: "",
+            email: "",
+         });
+      }
    }
 
    render() {
       const { error } = this.props,
-            errorMessage = error ? "Incorrect data" : null;
+              errorMessage = error ? "Incorrect data" : null;
 
       return (
          <Form 
@@ -66,35 +68,39 @@ export default class Registration extends Component {
             <InfoMessage className='info-message'>Already a member? You can log in here</InfoMessage>
             <Input 
                type="text" 
-               className="form-control" 
+               className="form-control"
                id="f-name-input" 
                placeholder="First name"
                value={this.state.first_name}
                onChange={this.changeInput}
+               required
             />
             <Input 
                type="text" 
-               className="form-control" 
+               className="form-control"
                id="username-input" 
                placeholder="Username"
                value={this.state.username}
                onChange={this.changeInput}
+               required
             />
             <Input 
                type="password" 
-               className="form-control" 
+               className="form-control"
                id="password-input" 
                placeholder="Password"
                value={this.state.password}
                onChange={this.changeInput}
+               required
             />
             <Input 
                type="password" 
-               className="form-control" 
+               className="form-control"
                id="c-password-input" 
                placeholder="Confirm password"
                value={this.state.confirm_password}
                onChange={this.changeInput}
+               required
             />
             <Input 
                type="email" 
@@ -103,11 +109,12 @@ export default class Registration extends Component {
                placeholder="Email"
                value={this.state.email}
                onChange={this.changeInput}
+               required
             />
             <Submit 
                type="submit" 
-               className="btn btn-primary btn-for-submit">Registration</Submit>
-            <Error className='error-message'>{errorMessage}</Error>
+               className="btn btn-primary">Registration</Submit>
+            <Error>{errorMessage}</Error>
          </Form>
       )
    }

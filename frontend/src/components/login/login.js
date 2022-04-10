@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 export default class Login extends Component {
    state = {
-      username: "",
+      email: "",
       password: ""
    }
 
@@ -11,8 +11,8 @@ export default class Login extends Component {
    changeInput = (event) => {
       const target = event.target;
       
-      if (target.id === "login-input") {
-         this.setState({username: target.value});
+      if (target.id === "email-input") {
+         this.setState({email: target.value});
       } else if (target.id === "password-input") {
          this.setState({password: target.value});
       }
@@ -22,7 +22,7 @@ export default class Login extends Component {
    submitForm = (event) => {
       event.preventDefault();
 
-      this.props.getDataFromLoginForm(this.state.username, this.state.password);
+      this.props.getDataFromLoginForm(this.state.email, this.state.password);
    }
 
    render() {
@@ -36,12 +36,12 @@ export default class Login extends Component {
             <h2>Login</h2>
             <InfoMessage>Not a member? You can register here</InfoMessage>
             <div className="form-group">
-               <label htmlFor="login-input">Username</label>
+               <label htmlFor="email-input">Email</label>
                <Input 
-                  type="text" 
+                  type="email" 
                   className="form-control" 
-                  id="login-input" 
-                  placeholder="Enter username" 
+                  id="email-input" 
+                  placeholder="Enter your email" 
                   onChange={this.changeInput}/>
             </div>
             <div className="form-group">

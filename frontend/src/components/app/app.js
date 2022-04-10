@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
-// import Login from '../login';
-import Registration from '../registration';
+import Login from '../login';
+// import Registration from '../registration';
 
 export default class App extends Component {
    state = {
       authToken: "",
-      username: "",
+      email: "",
       password: "",
       error: false
    }
 
    // Get token for authorization
-   getToken = async (username, password) => {
+   getToken = async (email, password) => {
       let url = 'http://127.0.0.1:8000/api/auth/',
-          data = {username, password};
+          data = {email, password};
 
       const auth = await fetch(url, {
          method: 'POST',
@@ -21,25 +21,25 @@ export default class App extends Component {
          headers: {
             'Content-Type': 'application/json'
          }
-      });
+      }).then(result => result.json());
 
       // if don't get show error message
-      if (!auth.ok) {
+      if (auth.status === 'Invalid data') {
          this.setState({error: true});
       } else {
-         return auth.json();
+         this.setState({error: false});
+         return auth;
       }
    }
 
-   // Get username and password from login form
-   getDataFromLoginForm = async (username, password) => {
+   // Get email and password from login form
+   getDataFromLoginForm = async (email, password) => {
       // Send request
-      const auth = await this.getToken(username, password);
-
-      if (auth) {
-         this.setState({authToken: auth.token})
-         console.log(this.state.authToken);
-      }
+      await this.getToken(email, password)
+            .then(result => {
+               this.setState({ authToken: result.token });
+               console.log(this.state.authToken);
+            });
    }
 
    // Registration user
@@ -59,6 +59,7 @@ export default class App extends Component {
       if (!reg.ok) {
          this.setState({error: true});
       } else {
+         this.setState({error: false});
          reg.json().then(res => console.log(res.status))
       }
    }
@@ -78,8 +79,8 @@ export default class App extends Component {
       return (
          <div className="App">
             {/* {result} */}
-            {/* <Login getDataFromLoginForm={this.getDataFromLoginForm} error={this.state.error}/> */}
-            <Registration registrationUser={this.registrationUser} error={this.state.error}/>
+            <Login getDataFromLoginForm={this.getDataFromLoginForm} error={this.state.error}/>
+            {/* <Registration registrationUser={this.registrationUser} error={this.state.error}/> */}
          </div>
       );
    }
