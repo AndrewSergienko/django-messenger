@@ -34,7 +34,10 @@ Example: 2022-04-04T16:07:03.233482Z
   
   response: 
   OK - HTTP 201
-  ERROR - HTTP 400
+  
+  ERRORS:
+  HTTP 400 - Одна із причин: Відсутні поля: username, first_name, емаіл або юзернейм існує, пароль не пройшов валідацію. Причина вказана в json repsonse
+  HTTP 500 - Відсутні поля: email, password. Без json.
   ```
 * `domen/api/users/<int>`
   * `GET` - отримати інфу про юзера
