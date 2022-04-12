@@ -1,6 +1,6 @@
 from .models import CustomUser
 from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.password_validation import validate_password, ValidationError
 
 
 class UserSeralizer(serializers.ModelSerializer):
@@ -12,13 +12,21 @@ class UserSeralizer(serializers.ModelSerializer):
     def validate(self, attrs):
         required_attrs = ['username', 'first_name']
 
+        errors = []
         not_in_fields = []
         for attr in required_attrs:
             if attr not in attrs.keys():
                 not_in_fields.append(attr)
+
         if not_in_fields:
-            raise serializers.ValidationError(", ".join(not_in_fields))
-        validate_password(attrs['password'])
+            errors.append(f'No required fields: {", ".join(not_in_fields)}')
+        try:
+            validate_password(attrs['password'])
+        except ValidationError as e:
+            errors.append(e.messages)
+        if errors:
+            raise serializers.ValidationError(errors)
+
         return attrs
 
     def save(self, **kwargs):
