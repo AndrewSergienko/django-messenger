@@ -8,56 +8,118 @@ export default class Registration extends Component {
       username: "",
       password: "",
       confirm_password: "",
-      email: ""
+      email: "",
+      errorMessage: "",
+
+      inputsClass: {
+         first_name: "",
+         username: "",
+         password: "",
+         confirm_password: "",
+         email: '', 
+      },
+
+      first_nameValid: false,
+      usernameValid: false,
+      passwordValid: false,
+      confirm_passwordValid: false,
+      emailValid: false,
+      formValid: false
    }
 
    // Write entered data in inputs to state
    changeInput = (event) => {
-      const target = event.target;
+      const name = event.target.name,
+            value = event.target.value;
 
-      switch (target.id) {
-         case "f-name-input":
-            this.setState({first_name: target.value});
+      this.setState({ [name]: value },
+         () => { this.validationInput(name, value) }
+      );
+   }
+
+   validationInput = (input, value) => {
+      let classes = this.state.inputsClass;
+      let { first_nameValid, usernameValid, passwordValid, confirm_passwordValid, emailValid } = this.state;
+
+      switch(input) {
+         case 'first_name':
+            first_nameValid = value.length >= 2;
+            classes.first_name = first_nameValid ? '' : 'border border-danger';
             break;
-         case "username-input":
-            this.setState({username: target.value});
+         case 'username':
+            usernameValid = value.length >= 3;
+            classes.username = usernameValid ? '' : 'border border-danger';
             break;
-         case "password-input":
-            this.setState({password: target.value});
+         case 'password':
+            passwordValid = value.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/);
+            classes.password = passwordValid ? '' : 'border border-danger';
             break;
-         case "c-password-input":
-            this.setState({confirm_password: target.value});
+         case 'confirm_password':
+            confirm_passwordValid = value === this.state.password;
+            classes.confirm_password = confirm_passwordValid ? '' : 'border border-danger';
             break;
-         case "email-input":
-            this.setState({email: target.value});
+         case 'email':
+            emailValid = value.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i);
+            classes.email = emailValid ? '' : 'border border-danger';
             break;
          default:
             break;
       }
+
+      this.setState({
+         formErrors: classes,
+         first_nameValid,
+         usernameValid,
+         passwordValid,
+         confirm_passwordValid,
+         emailValid
+      }, this.validateForm);
+   }
+
+   validateForm() {
+      const { first_name, username, password, confirm_password, email } = this.state.inputsClass;
+      this.setState({
+         formValid: !first_name && !username && !password && !confirm_password && !email
+      });
    }
 
    // When form is submit
-   submitForm = (event) => {
+   submitForm = async (event) => {
       event.preventDefault();
+      const { first_name, username, email, password, formValid } = this.state;
 
       console.log(this.state);
 
-      this.props.registrationUser(this.state.email, this.state.username, this.state.password, this.state.first_name);
+      console.log(this.props.error);
+      console.log(formValid);
 
-      if (!this.props.error) {
-         this.setState({
-            first_name: "",
-            username: "",
-            password: "",
-            confirm_password: "",
-            email: "",
-         });
-      }
+      if (formValid) {
+         await this.props.registrationUser(email, username, password, first_name);
+
+         if (this.props.error) {
+            this.setState({ errorMessage: "Incorrect data" });
+            setTimeout(() => {
+               this.setState({ errorMessage: "" });
+            }, 3000);
+         } else { 
+            this.setState({
+               first_name: "",
+               username: "",
+               password: "",
+               confirm_password: "",
+               email: "",
+            });
+
+            setTimeout(() => {
+               this.props.redirectToOtherPage();
+            }, 3000);
+         }
+      } 
    }
 
    render() {
-      const { error } = this.props,
-              errorMessage = error ? "Incorrect data" : null;
+      const { errorMessage } = this.state,
+            { first_name, username, password, confirm_password, email } = this.state.inputsClass;
 
       return (
          <Form 
@@ -70,46 +132,51 @@ export default class Registration extends Component {
             </InfoMessage>
             <Input 
                type="text" 
-               className="form-control"
+               className={`form-control ${first_name}`}
                id="f-name-input" 
                placeholder="First name"
+               name='first_name'
                value={this.state.first_name}
                onChange={this.changeInput}
                required
             />
             <Input 
                type="text" 
-               className="form-control"
+               className={`form-control ${username}`}
                id="username-input" 
                placeholder="Username"
+               name='username'
                value={this.state.username}
                onChange={this.changeInput}
                required
             />
             <Input 
+               type="email" 
+               className={`form-control ${email}`}
+               id="email-input" 
+               placeholder="Email"
+               name='email'
+               value={this.state.email}
+               onChange={this.changeInput}
+               required
+            />
+            <Input 
                type="password" 
-               className="form-control"
+               className={`form-control ${password}`}
                id="password-input" 
                placeholder="Password"
+               name='password'
                value={this.state.password}
                onChange={this.changeInput}
                required
             />
             <Input 
                type="password" 
-               className="form-control"
+               className={`form-control ${confirm_password}`}
                id="c-password-input" 
                placeholder="Confirm password"
+               name='confirm_password'
                value={this.state.confirm_password}
-               onChange={this.changeInput}
-               required
-            />
-            <Input 
-               type="email" 
-               className="form-control" 
-               id="email-input" 
-               placeholder="Email"
-               value={this.state.email}
                onChange={this.changeInput}
                required
             />

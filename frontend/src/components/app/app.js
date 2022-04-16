@@ -48,9 +48,10 @@ export default class App extends Component {
       // if don't get show error message
       if (!reg.ok) {
          this.setState({error: true});
+         reg.json().then(res => console.log(res));
       } else {
          this.setState({error: false});
-         reg.json().then(res => console.log(res.status))
+         reg.json().then(res => console.log(res.status));
       }
    }
 
