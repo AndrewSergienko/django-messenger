@@ -87,31 +87,40 @@ export default class Registration extends Component {
    submitForm = async (event) => {
       event.preventDefault();
       const { first_name, username, email, password, formValid } = this.state;
-
-      console.log(this.state);
-
-      console.log(this.props.error);
-      console.log(formValid);
+      const { registrationUser, error, errorMsg, redirectToOtherPage } = this.props;
 
       if (formValid) {
-         await this.props.registrationUser(email, username, password, first_name);
+         let msg = "";
+         await registrationUser(email, username, password, first_name);
 
-         if (this.props.error) {
-            this.setState({ errorMessage: "Incorrect data" });
+         if (error) {
+            if (errorMsg) {
+               for (const key in errorMsg) {
+                  msg = errorMsg[key];
+
+                  console.log(errorMsg[key]);
+               }
+            } else {
+               msg = "Invalid data"
+            }
+
+            this.setState({ errorMessage: msg });
             setTimeout(() => {
                this.setState({ errorMessage: "" });
-            }, 3000);
-         } else { 
+            }, 5000);
+         } else {
             this.setState({
                first_name: "",
                username: "",
                password: "",
                confirm_password: "",
                email: "",
+               errorMessage: "Registration successful"
             });
 
             setTimeout(() => {
-               this.props.redirectToOtherPage();
+               this.setState({ errorMessage: "" });
+               redirectToOtherPage();
             }, 3000);
          }
       } 

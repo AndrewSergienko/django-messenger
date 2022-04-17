@@ -6,6 +6,7 @@ export default class App extends Component {
    state = {
       authToken: "",
       error: false,
+      errorMsg: "",
       redirect: false
    }
 
@@ -48,10 +49,10 @@ export default class App extends Component {
       // if don't get show error message
       if (!reg.ok) {
          this.setState({error: true});
-         reg.json().then(res => console.log(res));
+         await reg.json().then(res => this.setState({ errorMsg: res }));
       } else {
          this.setState({error: false});
-         reg.json().then(res => console.log(res.status));
+         await reg.json().then(res => console.log(res.status));
       }
    }
 
@@ -71,9 +72,9 @@ export default class App extends Component {
       //     .then(res => res.json())
       //     .then(res => console.log(res))
 
-      const { redirect } = this.state,
-            page = redirect ? <Registration registrationUser={this.registrationUser} error={this.state.error} redirectToOtherPage={this.redirectToOtherPage}/> : 
-                              <Login loginUser={this.loginUser} error={this.state.error} redirectToOtherPage={this.redirectToOtherPage}/>;
+      const { redirect, error, errorMsg } = this.state,
+            page = redirect ? <Registration registrationUser={this.registrationUser} error={error} errorMsg={errorMsg} redirectToOtherPage={this.redirectToOtherPage}/> : 
+                              <Login loginUser={this.loginUser} error={error} redirectToOtherPage={this.redirectToOtherPage}/>;
 
       return (
          <div className="App">
