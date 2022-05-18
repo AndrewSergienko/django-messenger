@@ -17,7 +17,7 @@ class UserRegister(APIView):
         try:
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
-                return Response({'status': 'created'}, status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_201_CREATED)
         except serializers.ValidationError as e:
             """ 
             Якщо email або пароль не проходить валідацію, то метод перезапише помилки в зручному для API форматі
@@ -43,8 +43,6 @@ class UserRegister(APIView):
                     if e.detail[error][0] == 'This field may not be blank.':
                         e.detail[error][0] = 'no value'
             raise e
-
-        return Response({'status': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserDetail(APIView):
