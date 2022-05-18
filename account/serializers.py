@@ -11,23 +11,34 @@ class UserSeralizer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         required_attrs = ['username', 'first_name']
+        errors = {}
 
-        errors = []
-        not_in_fields = []
         for attr in required_attrs:
-            if attr not in attrs.keys():
-                not_in_fields.append(attr)
+            # Перевірка на те, чи не пусті поля
+            if attr not in attrs.keys() or attrs[attr] == '':
+                errors[attr] = ['no value']
 
-        if not_in_fields:
-            errors.append(f'No required fields: {", ".join(not_in_fields)}')
-        try:
-            validate_password(attrs['password'])
-        except ValidationError as e:
-            errors.append(e.messages)
+        pass_valid = self._validate_password(attrs['password'])
+        if pass_valid:
+            errors['password'] = pass_valid
+
         if errors:
             raise serializers.ValidationError(errors)
 
         return attrs
+
+    def _validate_password(self, password):
+        """ Якщо пароль не пройшов валідацію, метод перезапише помилки в коротшому форматі для фронту в API"""
+        errors_dict = {
+            "This password is too short. It must contain at least 8 characters.": "short",
+            "This password is too common.": "common",
+            "This password is entirely numeric.": "onlynums"
+        }
+        if password != '':
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                return [errors_dict[error] for error in e]
 
     def save(self, **kwargs):
         self.validated_data['is_active'] = True
@@ -38,6 +49,5 @@ class UserSeralizer(serializers.ModelSerializer):
                 cleaned_data[key] = self.validated_data[key]
 
         user = CustomUser(**cleaned_data)
-        validate_password(self.validated_data['password'])
         user.set_password(self.validated_data['password'])
         return user.save()

@@ -8,13 +8,12 @@ from .serializers import CustomAuthTokenSerializer
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         serializer = CustomAuthTokenSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             user = serializer.validated_data['user']
             token, created = Token.objects.get_or_create(user=user)
             return Response({
                 'token': token.key,
             })
-        return Response({'status': 'Invalid data'})
 
 
 authtoken_view = CustomAuthToken.as_view()
