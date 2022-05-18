@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
+from account.models import CustomUser
 
 
 class CustomAuthTokenSerializer(serializers.Serializer):
@@ -20,16 +21,14 @@ class CustomAuthTokenSerializer(serializers.Serializer):
         if email and password:
             user = authenticate(request=self.context.get('request'),
                                 username=email, password=password)
+            if user is None:
+                try:
+                    CustomUser.objects.get(email=email)
+                    raise serializers.ValidationError({'password': 'not correct'})
+                except CustomUser.DoesNotExist:
+                    raise serializers.ValidationError({'email': 'not exist'})
 
-            # The authenticate call simply returns None for is_active=False
-            # users. (Assuming the default ModelBackend authentication
-            # backend.)
-            if not user:
-                msg = 'Unable to log in with provided credentials.'
-                raise serializers.ValidationError(msg, code='authorization')
-        else:
-            msg = 'Must include "username" and "password".'
-            raise serializers.ValidationError(msg, code='authorization')
+            attrs['user'] = user
+            return attrs
 
-        attrs['user'] = user
-        return attrs
+

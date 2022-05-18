@@ -1,11 +1,10 @@
 from .models import CustomUser
-from django.db.models import Q
 
 
-class EmailOrPhoneAuthBackend:
+class EmailAuthBackend:
     def authenticate(self, request, username=None, password=None):
         try:
-            user = CustomUser.objects.get(Q(email=username) | Q(phone=username))
+            user = CustomUser.objects.get(email=username)
             if user.check_password(password):
                 return user
             return
