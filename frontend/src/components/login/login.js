@@ -22,7 +22,7 @@ export default class Login extends Component {
    submitForm = (event) => {
       event.preventDefault();
 
-      this.props.loginUser(this.state.email, this.state.password);
+      this.props.login(this.state.email, this.state.password);
    }
 
    render() {

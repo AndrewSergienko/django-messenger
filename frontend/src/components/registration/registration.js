@@ -87,11 +87,11 @@ export default class Registration extends Component {
    submitForm = async (event) => {
       event.preventDefault();
       const { first_name, username, email, password, formValid } = this.state;
-      const { registrationUser, error, errorMsg, redirectToOtherPage } = this.props;
+      const { registration, error, errorMsg, redirectToOtherPage } = this.props;
 
       if (formValid) {
          let msg = "";
-         await registrationUser(email, username, password, first_name);
+         await registration(email, username, password, first_name);
 
          if (error) {
             if (errorMsg) {

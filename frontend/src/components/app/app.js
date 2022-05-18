@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import Login from '../login';
 import Registration from '../registration';
+import Server from '../../services/server';
 
 export default class App extends Component {
+   server = new Server();
+
    state = {
       authToken: "",
       error: false,
@@ -10,49 +13,32 @@ export default class App extends Component {
       redirect: false
    }
 
-   // Get token for authorization
-   loginUser = async (email, password) => {
-      let url = 'http://127.0.0.1:8000/api/auth/',
-          data = {email, password};
+   login = async (email, password) => {
+      const result = await this.server.loginUser(email, password);
 
-      const auth = await fetch(url, {
-         method: 'POST',
-         body: JSON.stringify(data),
-         headers: {
-            'Content-Type': 'application/json'
-         }
-      }).then(response => response.json());
+      // TODO: Error handler
+      console.log(result);
 
       // if don't get show error message
-      if (auth.status === 'Invalid data') {
+      if (result.status === 'Invalid data') {
          this.setState({error: true});
       } else {
          this.setState({error: false});
-         this.setState({ authToken: auth.token });
+         this.setState({ authToken: result.token });
          console.log(this.state.authToken);
       }
    }
 
-   // Registration user
-   registrationUser = async (email, username, password, first_name) => {
-      let url = 'http://127.0.0.1:8000/api/users/',
-          data = {email, username, password, first_name};
-
-      const reg = await fetch(url, {
-         method: 'POST',
-         body: JSON.stringify(data),
-         headers: {
-            'Content-Type': 'application/json'
-         }
-      });
+   registration = async (email, username, password, first_name) => {
+      const result = await this.server.registrationUser(email, username, password, first_name);
 
       // if don't get show error message
-      if (!reg.ok) {
+      if (!result.ok) {
          this.setState({error: true});
-         await reg.json().then(res => this.setState({ errorMsg: res }));
+         await result.json().then(res => this.setState({ errorMsg: res }));
       } else {
          this.setState({error: false});
-         await reg.json().then(res => console.log(res.status));
+         await result.json().then(res => console.log(res.status));
       }
    }
 
@@ -73,8 +59,8 @@ export default class App extends Component {
       //     .then(res => console.log(res))
 
       const { redirect, error, errorMsg } = this.state,
-            page = redirect ? <Registration registrationUser={this.registrationUser} error={error} errorMsg={errorMsg} redirectToOtherPage={this.redirectToOtherPage}/> : 
-                              <Login loginUser={this.loginUser} error={error} redirectToOtherPage={this.redirectToOtherPage}/>;
+            page = redirect ? <Registration registration={this.registration} error={error} errorMsg={errorMsg} redirectToOtherPage={this.redirectToOtherPage}/> : 
+                              <Login login={this.login} error={error} redirectToOtherPage={this.redirectToOtherPage}/>;
 
       return (
          <div className="App">
