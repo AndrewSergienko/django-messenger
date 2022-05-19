@@ -21,7 +21,7 @@ class UserRegister(APIView):
         except serializers.ValidationError as e:
             """ 
             Якщо email або пароль не проходить валідацію, то метод перезапише помилки в зручному для API форматі
-            Сама валідація відбувається у системних методах Djangо.
+            Сама валідація відбувається у системних методах Djangо та UserSerializer.validate().
             """
 
             email_errors = {
@@ -30,9 +30,15 @@ class UserRegister(APIView):
                 'This field may not be blank.': 'no value'
             }
 
-            # Фікс ситуації, коли чомусь дублюється помилка валідації email
-            if 'email' in e.detail.keys() and len(e.detail['email']) > 1:
-                e.detail['email'] = [e.detail['email'][0]]
+            if 'email' in e.detail.keys():
+                # Якщо email буде не валідний, то у відповіді буде вказано лиш ця помилка
+                # а інші помилки валідації будуть проігноровані.
+                # Тому, якщо у відповіді є помилка валідації email, то в блоці відбувається перевірка інших полів
+                if len(e.detail['email']) > 1:
+                    # Фікс ситуації, коли чомусь дублюється помилка валідації email
+                    e.detail['email'] = [e.detail['email'][0]]
+                errors = serializer.validate(serializer.initial_data, return_errors=True)
+                e.detail.update(errors)
 
             for error in e.detail.keys():
                 if error == 'email':

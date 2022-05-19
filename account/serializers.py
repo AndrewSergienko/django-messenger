@@ -9,7 +9,7 @@ class UserSeralizer(serializers.ModelSerializer):
         exclude = ['is_staff', 'groups', 'user_permissions']
         extra_kwargs = {'password': {'write_only': True}}
 
-    def validate(self, attrs):
+    def validate(self, attrs, return_errors=False):
         required_attrs = ['username', 'first_name']
         errors = {}
 
@@ -23,6 +23,8 @@ class UserSeralizer(serializers.ModelSerializer):
             errors['password'] = pass_valid
 
         if errors:
+            if return_errors:
+                return errors
             raise serializers.ValidationError(errors)
 
         return attrs
