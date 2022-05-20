@@ -55,6 +55,9 @@ Example: 2022-04-04T16:07:03.233482Z
    - "no value" -> поле пусте;
    - "short" -> довжина поля < 4 символа;
    - "user exist" -> username вже зайнятий;
+  
+  first_name:
+   - "no value" -> поле пусте;
   ```
 * `domen/api/users/<int>`
   * `GET` - отримати інфу про юзера
