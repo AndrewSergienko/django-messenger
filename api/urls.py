@@ -7,7 +7,7 @@ app_name = 'api'
 urlpatterns = [
     path('chats/', include('chat.urls', namespace='chat')),
     path('users/', include('account.urls', namespace='account')),
-    path('auth/', authtoken_view)
+    path('auth/', authtoken_view, name="auth")
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

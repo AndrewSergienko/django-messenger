@@ -18,6 +18,13 @@ class UserSeralizer(serializers.ModelSerializer):
             if attr not in attrs.keys() or attrs[attr] == '':
                 errors[attr] = ['no value']
 
+        if 'username' in attrs.keys() and len(attrs['username']) < 4 and attrs['username'] != '':
+            # Перевірка на то, чи довжина username не менше 4
+            if 'username' in errors.keys():
+                errors['username'].append('short')
+            else:
+                errors['username'] = ['short']
+
         pass_valid = self._validate_password(attrs['password'])
         if pass_valid:
             errors['password'] = pass_valid
@@ -26,6 +33,9 @@ class UserSeralizer(serializers.ModelSerializer):
             if return_errors:
                 return errors
             raise serializers.ValidationError(errors)
+
+        if return_errors:
+            return {}
 
         return attrs
 

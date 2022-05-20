@@ -48,6 +48,10 @@ class UserRegister(APIView):
                     # Всі інші помилки валідації перезаписуються в UserSeralizer.validate()
                     if e.detail[error][0] == 'This field may not be blank.':
                         e.detail[error][0] = 'no value'
+                elif error == 'username':
+                    for i, message in enumerate(e.detail[error]):
+                        if message == 'user with this username already exists.':
+                            e.detail[error][i] = 'user exist'
             raise e
 
 
