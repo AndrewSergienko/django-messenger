@@ -51,8 +51,10 @@ Example: 2022-04-04T16:07:03.233482Z
    - "common" -> пароль дуже поширений;
    - "onlynums" -> пароль містить тільки цифри.
  
-  username, first_name:
+  username:
    - "no value" -> поле пусте;
+   - "short" -> довжина поля < 4 символа;
+   - "user exist" -> username вже зайнятий;
   ```
 * `domen/api/users/<int>`
   * `GET` - отримати інфу про юзера
