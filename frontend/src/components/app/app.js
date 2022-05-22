@@ -9,15 +9,12 @@ export default class App extends Component {
    state = {
       authToken: "",
       error: false,
-      errorMsg: "",
+      errorInfo: {},
       redirect: false
    }
 
    login = async (email, password) => {
       const result = await this.server.loginUser(email, password);
-
-      // TODO: Error handler
-      console.log(result);
 
       // if don't get show error message
       if (result.status === 'Invalid data') {
@@ -32,17 +29,10 @@ export default class App extends Component {
    registration = async (email, username, password, first_name) => {
       const result = await this.server.registrationUser(email, username, password, first_name);
 
-      // if don't get show error message
-      if (!result.ok) {
-         this.setState({error: true});
-         await result.json().then(res => this.setState({ errorMsg: res }));
-      } else {
-         this.setState({error: false});
-         await result.json().then(res => console.log(res.status));
-      }
+      return result ? result : '';
    }
 
-   redirectToOtherPage = () => {
+   redirect = () => {
       this.setState({redirect: !this.state.redirect});
    }
       
@@ -58,9 +48,9 @@ export default class App extends Component {
       //     .then(res => res.json())
       //     .then(res => console.log(res))
 
-      const { redirect, error, errorMsg } = this.state,
-            page = redirect ? <Registration registration={this.registration} error={error} errorMsg={errorMsg} redirectToOtherPage={this.redirectToOtherPage}/> : 
-                              <Login login={this.login} error={error} redirectToOtherPage={this.redirectToOtherPage}/>;
+      const { redirect, error, errorInfo } = this.state,
+            page = redirect ? <Registration registration={this.registration} error={error} errorInfo={errorInfo} redirect={this.redirect}/> : 
+                              <Login login={this.login} error={error} redirect={this.redirect}/>;
 
       return (
          <div className="App">
