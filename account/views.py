@@ -66,6 +66,12 @@ class CreateEmailToken(APIView):
                 e.detail['email'][0] = "not valid"
             elif e.detail['email'][0] == 'This field may not be blank.':
                 e.detail['email'][0] = "no value"
+            elif e.detail['email'][0] == "email token with this email already exists.":
+                # Якщо код підвердження вже був відправлений, то відправити його знову
+                EmailToken.objects.get(email=data['email']).delete()
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(status=status.HTTP_200_OK)
             raise e
 
 
