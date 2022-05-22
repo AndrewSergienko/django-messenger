@@ -11,19 +11,22 @@ export default class Server {
             'Content-Type': 'application/json'
          }
       })
-      .then(errors => errors.json())
-      .catch(() => {return});
    };
 
    // Get token for login
    loginUser = async (email, password) => {
       const data = {email, password};
-      return await this.postResource('/auth/', 'POST', data);
+      return await this
+                     .postResource('/auth/', 'POST', data)
+                     .then(errors => errors.json());
    }
 
    // Registration user
    registrationUser = async (email, username, password, first_name) => {
       const data = {email, username, password, first_name};
-      return await this.postResource('/users/', 'POST', data);
+      return await this
+                     .postResource('/users/', 'POST', data)
+                     .then(errors => errors.json())
+                     .catch(() => {return});
    }
 }

@@ -5,7 +5,9 @@ import { Form, InfoMessage, Input, Submit, Label, RedirectSpan } from '../formIn
 export default class Login extends Component {
    state = {
       email: "",
-      password: ""
+      password: "",
+      labelMessage: "",
+      labelColor: ""
    }
 
    // Write entered data in inputs to state
@@ -19,16 +21,58 @@ export default class Login extends Component {
       }
    }
 
-   // When form is submit
-   submitForm = (event) => {
-      event.preventDefault();
+   checkValidation = (errorsObject) => {
+      for (const [field, reason] of Object.entries(errorsObject)) {
+         switch (field) {
+            case 'email':
+               this.setState({labelColor: 'red'});
+               switch (reason[0]) {
+                  case 'not exist':
+                     this.setState({labelMessage: 'User with this email not exists'});
+                     break;
+                  default:
+                     break;
+               }
+               break;
+            case 'password':
+               this.setState({labelColor: 'red'});
+               switch (reason[0]) {
+                  case 'not correct':
+                     this.setState({labelMessage: 'Wrong password. Try entering the password again and try logging in again'});
+                     break;
+                  default:
+                     break;
+               }
+               break;
+            default:
+               break;
+         }
+      }
+   }
 
-      this.props.login(this.state.email, this.state.password);
+   // When form is submit
+   submitForm = async (event) => {
+      event.preventDefault();
+      const { email, password } = this.state;
+      const { login } = this.props;
+
+      await login(email, password).then(res => {
+         if (res) {
+            this.checkValidation(res);
+         } else {
+            this.setState({
+               email: "",
+               password: "",
+               labelMessage: 'You have successfully login',
+               labelColor: 'green'
+            });
+         }
+      });
    }
 
    render() {
-      const { error } = this.props,
-            errorMessage = error ? "Incorrect data" : null;
+      const { redirect } = this.props,
+            { labelColor, labelMessage } = this.state;
 
       return (
          <Form height={500}
@@ -36,7 +80,7 @@ export default class Login extends Component {
             onSubmit={this.submitForm}>
             <h2>Login</h2>
             <InfoMessage>Not a member? You can register 
-               <RedirectSpan onClick={this.props.redirect}> here</RedirectSpan>
+               <RedirectSpan onClick={redirect}> here</RedirectSpan>
             </InfoMessage>
             <div className="form-group">
                <label htmlFor="email-input">Email</label>
@@ -59,7 +103,7 @@ export default class Login extends Component {
             <Submit 
                type="submit" 
                className="btn btn-primary">Login</Submit>
-            <Label>{errorMessage}</Label>
+            <Label color={labelColor}>{labelMessage}</Label>
          </Form>
       )
    }
