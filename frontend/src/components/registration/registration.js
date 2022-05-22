@@ -75,26 +75,33 @@ export default class Registration extends Component {
    // When form is submit
    submitForm = async (event) => {
       event.preventDefault();
-      const { first_name, username, email, password } = this.state;
+      const { first_name, username, email, password, confirm_password } = this.state;
       const { registration, redirect } = this.props;
       
-      await registration(email, username, password, first_name).then(res => {
-         if (res) {
-            this.checkValidation(res);
-         } else {
-            this.setState({
-               first_name: "",
-               username: "",
-               password: "",
-               confirm_password: "",
-               email: "",
-               labelMessage: 'You have successfully registered. In 5 seconds you will be redirected to the login page',
-               labelColor: 'green'
-            });
+      if (password !== confirm_password) {
+         this.setState({
+            labelMessage: 'Passwords do not match',
+            labelColor: 'red'
+         });
+      } else {
+         await registration(email, username, password, first_name).then(res => {
+            if (res) {
+               this.checkValidation(res);
+            } else {
+               this.setState({
+                  first_name: "",
+                  username: "",
+                  password: "",
+                  confirm_password: "",
+                  email: "",
+                  labelMessage: 'You have successfully registered. In 5 seconds you will be redirected to the login page',
+                  labelColor: 'green'
+               });
 
-            setTimeout(redirect, 5000);
-         }
-      });
+               setTimeout(redirect, 5000);
+            }
+         });
+      }
    }
 
    render() {
