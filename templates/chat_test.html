@@ -3,95 +3,44 @@
 <head>
     <meta charset="utf-8"/>
     <title>Chat Room</title>
-    <link rel="stylesheet" href="chat_style.css">
 </head>
-<body style="display: flex; width: 1900px; height: 975px; margin: 0">
-    <div id="chats" style="width: 30%; height: 100%; border-right: solid 2px black;">
-
-    </div>
-    <div id="chat-area" style="width: 70%; height: 100%">
-        <textarea id="chat-log" cols="100" rows="20"></textarea><br>
-        <div id="chat-inputs">
-            <input id="chat-message-input" type="text" size="100"><br>
-            <input id="chat-message-submit" type="button" value="Send">
-        </div>
-    </div>
-
+<body>
+    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+    <input id="chat-message-input" type="text" size="100"><br>
+    <input id="chat-message-submit" type="button" value="Send">
     <script>
-        let target_chat = undefined
-        let chatSocket = undefined
-        let token = undefined
+        const chatSocket = new WebSocket(
+            'ws://'
+            + '//localhost:8000'
+            + '/ws/chat/de48d436b1a4593f9001d62f4fa1caefb6d3fa56/'
+        );
 
-        window.onload = async function () {
-            token = prompt("Enter token:")
-            chatSocket = new WebSocket(
-                'ws://'
-                + '//localhost:8000'
-                + '/ws/chat/' + token + '/'
-            );
-            let chats = await fetch("http://127.0.0.1:8000/api/chats/list", {
-                headers: {
-                authorization: 'Token ' + token
-                }
-            });
-            let json = await chats.json()
-            let chats_html = document.querySelector('#chats')
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data)
+            document.querySelector('#chat-log').value += (data.message.text + '\n');
+        };
 
-            for (let i = 0; i < json.length; i++) {
-                let id = json[i].id
-                console.log(id)
-                let chat_div = document.createElement("div")
-                chat_div.classList.add('chat')
-                chat_div.id = "chat" + id
-                chat_div.onclick = function (){change_chat(id)}
-                chat_div.innerHTML = "chat" + id + "    " + json[i].last_message.user + ": " + json[i].last_message.text
-                chats_html.appendChild(chat_div)
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
             }
-
-            chatSocket.onmessage = function (e) {
-                const data = JSON.parse(e.data);
-                console.log(data)
-                if(data.type === "message"){
-                    if(data.message.chat === target_chat){
-                        document.querySelector('#chat-log').value += (data.message.text + '\n');
-                    }
-                    document.querySelector("#chat" + data.message.chat).innerHTML = "chat" + data.message.chat + "    " + data.message.user + ": " + data.message.text
-                }
-            };
-
-            chatSocket.onclose = function (e) {
-                console.error('Chat socket closed unexpectedly');
-            };
-
-            document.querySelector('#chat-message-input').focus();
-            document.querySelector('#chat-message-input').onkeyup = function (e) {
-                if (e.keyCode === 13) {  // enter, return
-                    document.querySelector('#chat-message-submit').click();
-                }
-            };
-        }
-
-        async function change_chat(id) {
-            target_chat = id
-            let text_area = document.querySelector("#chat-log")
-            let messages = await fetch("http://127.0.0.1:8000/api/chats/" + id + "/messages?messages_num=50", {
-                headers: {
-                authorization: 'Token ' + token
-                }
-            })
-            let messages_json = await messages.json()
-            for (let i = 0; i < messages_json.length; i++) {
-                text_area.value += (messages_json[i].user + ": " + messages_json[i].text + '\n')
-            }
-        }
+        };
 
         document.querySelector('#chat-message-submit').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
+            let id = message.split(' ')[0]
+            let text = message.split(' ')[1]
             chatSocket.send(JSON.stringify({
                 'type': 'message',
-                'chat': target_chat,
-                'text': message
+                'chat': id,
+                'text': text
             }));
             messageInputDom.value = '';
         };
