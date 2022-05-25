@@ -2,8 +2,9 @@ from django.urls import path
 
 from . import views
 
-app_name = 'chat'
+app_name = 'chats'
 urlpatterns = [
-    path('', views.ChatList.as_view()),
+    path('list', views.ChatList.as_view()),
+    path('create', views.ChatCreate.as_view()),
     path('<int:pk>', views.ChatDetail.as_view()),
 ]

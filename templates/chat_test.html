@@ -12,11 +12,12 @@
         const chatSocket = new WebSocket(
             'ws://'
             + '//localhost:8000'
-            + '/ws/chat/135f4821bf2a4394301159334f354f622fd606ef/'
+            + '/ws/chat/de48d436b1a4593f9001d62f4fa1caefb6d3fa56/'
         );
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
+            console.log(data)
             document.querySelector('#chat-log').value += (data.message.text + '\n');
         };
 
