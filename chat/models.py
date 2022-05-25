@@ -3,6 +3,11 @@ from account.models import CustomUser
 
 
 class Chat(models.Model):
+    type_choices = (
+        ('personal', 'personal'),
+        ('group', 'group')
+    )
+    type = models.CharField(max_length=8, choices=type_choices, default='personal')
     users = models.ManyToManyField(CustomUser, related_name='chats')
 
 
