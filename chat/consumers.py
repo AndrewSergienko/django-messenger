@@ -19,58 +19,47 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, code):
-        redis.delete(self.scope['user_id'])
+        redis.delete(self.scope["url_route"]["kwargs"]["token"])
+        # await self.delete_channel_user()
 
     async def receive(self, text_data=None, bytes_data=None):
         """ Метод викливається з клієнту користувача """
-        text_data_json = json.loads(text_data)
-        text_data_json['chat'] = await self.get_chat(text_data_json['chat'])
-        text_data_json['user'] = await self.get_user(self.scope['user_id'])
-        send_functions = {
-            'message': self.data_send_message,
-            'read': self.data_send_read_event
-        }
-        send_data = await send_functions[text_data_json['type']](text_data_json)
-        receivers = await self.get_receivers(text_data_json['chat'])
-        for receiver in receivers:
-            channel_name = redis.get(str(receiver))
-            if channel_name:
-                await self.channel_layer.send(channel_name, send_data)
+        try:
+            text_data_json = json.loads(text_data)
+            if text_data_json['type'] == 'message':
+                message_data = {
+                    'chat': text_data_json['chat'],
+                    'user': self.scope['user_id'],
+                    'text': text_data_json['text']
+                }
+                message = await self.create_message(message_data, save=True, return_obj=True)
 
-    async def data_send_message(self, data):
-        message_data = {
-            'chat': data['chat'],
-            'user': data['user'],
-            'text': data['text']
-        }
-        message = await self.create_message(message_data, save=True, return_obj=True)
-        return {
-            'type': 'chat_message',
-            'message_id': message.id
-        }
-
-    async def data_send_read_event(self, data):
-        message = await self.get_message(data['message_id'])
-        message.read.add(data['user'])
-        await self.update_obj(message)
-        return {
-            'type': 'read_event',
-            'message': message.id,
-            'chat': data['chat'].id,
-            'user': self.scope['user_id']
-        }
+                chat = message_data['chat']
+                receivers = await self.get_receivers(chat)
+                for receiver in receivers:
+                    channel_name = redis.get(str(receiver))
+                    if channel_name:
+                        await self.channel_layer.send(channel_name,
+                                                      {
+                                                          'type': 'chat_message',
+                                                          'message_id': message.id
+                                                      })
+            elif text_data_json['type'] == 'read':
+                message = await self.get_message(text_data_json['message_id'])
+                message.read = True
+                self.save_obj(message)
+        # Якщо не зловить помилку, то це приведе до websocket disconect
+        except CustomUser.DoesNotExist:
+            pass
 
     async def chat_message(self, event):
         # Метод викликається, якщо ловить повідомлення від іншого користувача
-        message = await self.get_message(event['message_id'], relation='user', serialize=True)
+        message = await self.get_message(event['message_id'], serialize=True)
         message_return = {'type': 'message',
                           'message': message}
 
         # Надсилається повідомлення до JS клієнта в браузері
         await self.send(text_data=json.dumps(message_return))
-
-    async def read_event(self, event):
-        await self.send(text_data=json.dumps(event))
 
     # Django ORM не підтримує асинхронність, тому потрібно використовувати декоратори
     @database_sync_to_async
@@ -86,20 +75,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return user
 
     @database_sync_to_async
-    def get_message(self, pk, relation=False, serialize=False):
-        if relation:
-            message = Message.objects.select_related(relation).get(id=pk)
-        else:
-            message = Message.objects.get(id=pk)
+    def get_message(self, pk, serialize=False):
+        message = Message.objects.get(id=pk)
         if serialize:
-            if relation == 'chat':
-                relation_serializer = ChatSerializer(message.chat)
-            else:
-                relation_serializer = UserSeralizer(message.user)
-            message_serializer = MessageSerializer(message)
-            result_data = message_serializer.data
-            result_data[relation] = relation_serializer.data
-            return result_data
+            serializer = MessageSerializer(message)
+            return serializer.data
         return message
 
     @database_sync_to_async
@@ -112,6 +92,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def create_message(self, data, save=False, return_obj=False):
+        data['chat'] = Chat.objects.get(id=data['chat'])
+        data['user'] = CustomUser.objects.get(id=self.scope['user_id'])
         message = Message(**data)
         if save:
             message.save()
@@ -123,13 +105,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         obj.save()
 
     @database_sync_to_async
-    def update_obj(self, obj, **kwargs):
-        obj.update(**kwargs)
-
-    @database_sync_to_async
     def get_receivers(self, chat):
-        return [user.id for user in chat.users.exclude(id=self.scope['user_id'])]
-
-    @database_sync_to_async
-    def get_model_prefetch(self, model_class, pk, prefetch_fields):
-        return model_class.objects.get(id=pk).prefetch_related(*prefetch_fields)
+        users = [user.id for user in chat.users.all()]
+        users.remove(self.scope['user_id'])
+        return users
