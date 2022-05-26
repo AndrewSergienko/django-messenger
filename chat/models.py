@@ -9,7 +9,7 @@ class Chat(models.Model):
     )
     type = models.CharField(max_length=8, choices=type_choices, default='personal')
     users = models.ManyToManyField(CustomUser, related_name='chats')
-    last_message = models.OneToOneField('Message', on_delete=models.CASCADE)
+    last_message = models.OneToOneField('Message', on_delete=models.CASCADE, related_name='last_message', null=True)
 
 
 class Message(models.Model):
