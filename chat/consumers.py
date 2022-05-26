@@ -91,7 +91,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message = Message.objects.select_related(relation).get(id=pk)
         else:
             message = Message.objects.get(id=pk)
-            message.update()
         if serialize:
             if relation == 'chat':
                 relation_serializer = ChatSerializer(message.chat)
