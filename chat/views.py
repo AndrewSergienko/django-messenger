@@ -30,7 +30,6 @@ class ChatCreate(APIView):
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 except CustomUser.DoesNotExist:
                     return Response({'user_id': 'not exist'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(data=status.HTTP_400_BAD_REQUEST)
 
 
 class ChatDetail(APIView):
