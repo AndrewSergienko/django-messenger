@@ -1,4 +1,4 @@
-from .serializers import ChatSerializer
+from .serializers import ChatSerializer, MessageSerializer
 from .models import Chat, Message
 from account.models import CustomUser
 from django.shortcuts import render, get_object_or_404
@@ -11,9 +11,11 @@ class ChatList(APIView):
     def get(self, request, format=None):
         chats = request.user.chats.all()
         serializer = ChatSerializer(chats, many=True)
-        for chat in serializer.data:
+        for i, chat in enumerate(serializer.data):
             if chat['type'] == 'personal':
                 chat['friend'] = chat['users'][0] if chat['users'][1] == request.user.id else chat['users'][1]
+                message_serializer = MessageSerializer(chats[i].messages.last())
+                chat['last_message'] = message_serializer.data
                 del chat['users']
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -38,6 +40,25 @@ class ChatDetail(APIView):
         if request.user in chat.users.all():
             serializer = ChatSerializer(chat)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class Messages(APIView):
+    def get(self, request, chat_pk):
+        chat = get_object_or_404(Chat, id=chat_pk)
+        message = get_object_or_404(Message, id=request.GET['message_id'])\
+            if 'message_id' in request.GET else None
+        direction = request.GET['direction'] if 'direction' in request.GET else None
+        messages_num = int(request.GET['messages_num'])
+        if message and direction:
+            if direction == 'up':
+                messages = chat.messages.filter(id__lt=message.id).order_by('-id')[:messages_num]
+            elif direction == 'down':
+                messages = chat.messages.filter(id__gt=message.id).order_by('id')[:messages_num]
+        else:
+            messages = chat.messages.order_by('-id')
+
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 def room(request):

@@ -19,7 +19,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, code):
-        redis.delete(self.scope["url_route"]["kwargs"]["token"])
+        redis.delete(self.scope['user_id'])
 
     async def receive(self, text_data=None, bytes_data=None):
         """ Метод викливається з клієнту користувача """
@@ -51,7 +51,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def data_send_read_event(self, data):
         message = await self.get_message(data['message_id'])
-        message.read.add(data['chat'])
+        message.read.add(data['user'])
         await self.update_obj(message)
         return {
             'type': 'read_event',
