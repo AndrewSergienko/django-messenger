@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PulseLoader from 'react-spinners/PulseLoader';
 
 import { Form, InfoMessage, Input, Submit, Label, RedirectSpan } from '../formInputs/formInputs';
 
@@ -14,7 +15,8 @@ export default class Registration extends Component {
       password: "",
       confirm_password: "",
       labelMessage: "",
-      labelColor: ""
+      labelColor: "",
+      buttonText: "Continue"
    }
 
    // Write entered data in inputs to state
@@ -81,7 +83,9 @@ export default class Registration extends Component {
       event.preventDefault();
       const { email } = this.state;
       const { createTokenForEmail } = this.props;
-       
+      
+      this.setState({buttonText: <PulseLoader color={'#FFF'} size={10}/>})
+
       await createTokenForEmail(email).then(res => {
          if (res) {
             this.checkValidation(res);
@@ -89,7 +93,8 @@ export default class Registration extends Component {
             this.setState({
                isCreated: true,
                labelMessage: 'To confirm this, a notification was sent to your email with the verification code. Enter it in the corresponding field to continue registration.',
-               labelColor: 'green'
+               labelColor: 'green',
+               buttonText: 'Continue'
             });
          }
       });
@@ -100,6 +105,8 @@ export default class Registration extends Component {
       const { email, token } = this.state;
       const { verifyTokenForEmail } = this.props;
          
+      this.setState({buttonText: <PulseLoader color={'#FFF'} size={10}/>})
+
       await verifyTokenForEmail(email, token).then(res => {
          if (res && !res.ok) {
             this.setState({
@@ -112,7 +119,8 @@ export default class Registration extends Component {
                isVerified: true,
                isCreated: false,
                labelMessage: 'Your mail is successfully confirmed.',
-               labelColor: 'green'
+               labelColor: 'green',
+               buttonText: 'Registration'
             });
          }
       });
@@ -129,6 +137,7 @@ export default class Registration extends Component {
             labelColor: 'red'
          });
       } else {
+         this.setState({buttonText: <PulseLoader color={'#FFF'} size={10}/>});
          await registration(email, username, password, first_name).then(res => {
             if (res) {
                this.checkValidation(res);
@@ -141,7 +150,7 @@ export default class Registration extends Component {
                   password: "",
                   confirm_password: "",
                   labelMessage: 'You have successfully registered. In 5 seconds you will be redirected to the login page',
-                  labelColor: 'green'
+                  labelColor: 'green',
                });
 
                setTimeout(redirect, 5000);
@@ -151,7 +160,7 @@ export default class Registration extends Component {
    }
 
    render() {
-      const { formHeight, isCreated, isVerified, email, token, first_name, username, password, confirm_password, labelMessage, labelColor } = this.state;
+      const { formHeight, isCreated, isVerified, email, token, first_name, username, password, confirm_password, labelMessage, labelColor, buttonText } = this.state;
       let submitFunc = this.createToken;
       let content = <Input type="email" className="form-control" id="email-input" placeholder="Email" name='email' value={email} onChange={this.changeInput} required />;
 
@@ -181,7 +190,7 @@ export default class Registration extends Component {
             { content }
             <Submit 
                type="submit" 
-               className="btn btn-primary">Registration</Submit>
+               className="btn btn-primary">{buttonText}</Submit>
             <Label color={labelColor}>{labelMessage}</Label>
          </Form>
       )
