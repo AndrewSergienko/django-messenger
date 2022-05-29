@@ -4,11 +4,15 @@ import { Form, InfoMessage, Input, Submit, Label, RedirectSpan } from '../formIn
 
 export default class Registration extends Component {
    state = {
+      formHeight: 380,
+      isCreated: false,
+      isVerified: false,
+      email: "",
+      token: "",
       first_name: "",
       username: "",
       password: "",
       confirm_password: "",
-      email: "",
       labelMessage: "",
       labelColor: ""
    }
@@ -73,7 +77,48 @@ export default class Registration extends Component {
    }
 
    // When form is submit
-   submitForm = async (event) => {
+   createToken = async (event) => {
+      event.preventDefault();
+      const { email } = this.state;
+      const { createTokenForEmail } = this.props;
+       
+      await createTokenForEmail(email).then(res => {
+         if (res) {
+            this.checkValidation(res);
+         } else {
+            this.setState({
+               isCreated: true,
+               labelMessage: 'To confirm this, a notification was sent to your email with the verification code. Enter it in the corresponding field to continue registration.',
+               labelColor: 'green'
+            });
+         }
+      });
+   }
+
+   verifyToken = async (event) => {
+      event.preventDefault();
+      const { email, token } = this.state;
+      const { verifyTokenForEmail } = this.props;
+         
+      await verifyTokenForEmail(email, token).then(res => {
+         if (res && !res.ok) {
+            this.setState({
+               labelMessage: 'Incorrect verification code.',
+               labelColor: 'red'
+            });
+         } else {
+            this.setState({
+               formHeight: 550,
+               isVerified: true,
+               isCreated: false,
+               labelMessage: 'Your mail is successfully confirmed.',
+               labelColor: 'green'
+            });
+         }
+      });
+   }
+
+   createUser = async (event) => {
       event.preventDefault();
       const { first_name, username, email, password, confirm_password } = this.state;
       const { registration, redirect } = this.props;
@@ -89,11 +134,12 @@ export default class Registration extends Component {
                this.checkValidation(res);
             } else {
                this.setState({
+                  email: "",
+                  token: "",
                   first_name: "",
                   username: "",
                   password: "",
                   confirm_password: "",
-                  email: "",
                   labelMessage: 'You have successfully registered. In 5 seconds you will be redirected to the login page',
                   labelColor: 'green'
                });
@@ -105,67 +151,34 @@ export default class Registration extends Component {
    }
 
    render() {
-      const { first_name, username, email, password, confirm_password, labelMessage, labelColor } = this.state;
+      const { formHeight, isCreated, isVerified, email, token, first_name, username, password, confirm_password, labelMessage, labelColor } = this.state;
+      let submitFunc = this.createToken;
+      let content = <Input type="email" className="form-control" id="email-input" placeholder="Email" name='email' value={email} onChange={this.changeInput} required />;
+
+      if (isCreated) {
+         submitFunc = this.verifyToken;
+         content = <Input type="text" className="form-control" id="token-input" placeholder="Confirmation code" name='token' value={token} onChange={this.changeInput} required/>
+      } else if (isVerified) {
+         submitFunc = this.createUser;
+         content = 
+            <>
+               <Input type="text" className="form-control" id="f-name-input" placeholder="First name" name='first_name' value={first_name} onChange={this.changeInput} required />
+               <Input type="text" className="form-control" id="username-input" placeholder="Username" name='username' value={username} onChange={this.changeInput} required />
+               <Input type="password" className="form-control" id="password-input" placeholder="Password" name='password' value={password} onChange={this.changeInput} required />
+               <Input type="password" className="form-control" id="c-password-input" placeholder="Confirm password" name='confirm_password' value={confirm_password} onChange={this.changeInput} required />
+            </>
+      }
 
       return (
          <Form 
-            height={620}
+            height={formHeight}
             className='registration-form d-flex align-items-center'
-            onSubmit={this.submitForm}>
+            onSubmit={submitFunc}>
             <h2>Registration</h2>
             <InfoMessage className='info-message'>Already a member? You can log in 
                <RedirectSpan onClick={this.props.redirect}> here</RedirectSpan>
             </InfoMessage>
-            <Input 
-               type="text" 
-               className={`form-control`}
-               id="f-name-input" 
-               placeholder="First name"
-               name='first_name'
-               value={first_name}
-               onChange={this.changeInput}
-               required
-            />
-            <Input 
-               type="text" 
-               className={`form-control`}
-               id="username-input" 
-               placeholder="Username"
-               name='username'
-               value={username}
-               onChange={this.changeInput}
-               required
-            />
-            <Input 
-               type="email" 
-               className={`form-control`}
-               id="email-input" 
-               placeholder="Email"
-               name='email'
-               value={email}
-               onChange={this.changeInput}
-               required
-            />
-            <Input 
-               type="password" 
-               className={`form-control`}
-               id="password-input" 
-               placeholder="Password"
-               name='password'
-               value={password}
-               onChange={this.changeInput}
-               required
-            />
-            <Input 
-               type="password" 
-               className={`form-control`}
-               id="c-password-input" 
-               placeholder="Confirm password"
-               name='confirm_password'
-               value={confirm_password}
-               onChange={this.changeInput}
-               required
-            />
+            { content }
             <Submit 
                type="submit" 
                className="btn btn-primary">Registration</Submit>

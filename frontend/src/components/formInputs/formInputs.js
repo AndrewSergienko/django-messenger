@@ -23,7 +23,7 @@ export const Input = styled.input`
 
 export const Submit = styled.button`
    width: 150px;
-   margin-top: 40px;
+   margin-top: 20px;
 `;
 
 export const Label = styled.small`

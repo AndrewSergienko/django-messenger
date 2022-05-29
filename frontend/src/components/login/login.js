@@ -75,7 +75,7 @@ export default class Login extends Component {
             { labelColor, labelMessage } = this.state;
 
       return (
-         <Form height={500}
+         <Form height={480}
             className='d-flex align-items-center'
             onSubmit={this.submitForm}>
             <h2>Login</h2>
