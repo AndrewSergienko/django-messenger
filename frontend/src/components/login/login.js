@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
+import PulseLoader from 'react-spinners/PulseLoader';
 
-import { Form, InfoMessage, Input, Submit, Label, RedirectSpan } from '../formInputs/formInputs'
+import { Form, InfoMessage, Input, Submit, ErrorLabel, RedirectSpan } from '../formInputs/formInputs'
 
 export default class Login extends Component {
    state = {
       email: "",
       password: "",
-      labelMessage: "",
-      labelColor: ""
+      EmailErrorLabel: "",
+      PasswordErrorLabel: "",
+      buttonText: "Login"
    }
 
    // Write entered data in inputs to state
@@ -15,9 +17,15 @@ export default class Login extends Component {
       const target = event.target;
       
       if (target.id === "email-input") {
-         this.setState({email: target.value});
+         this.setState({
+            email: target.value,
+            EmailErrorLabel: ""
+         });
       } else if (target.id === "password-input") {
-         this.setState({password: target.value});
+         this.setState({
+            password: target.value,
+            PasswordErrorLabel: ""
+         });
       }
    }
 
@@ -25,27 +33,23 @@ export default class Login extends Component {
       for (const [field, reason] of Object.entries(errorsObject)) {
          switch (field) {
             case 'email':
-               this.setState({labelColor: 'red'});
                switch (reason[0]) {
                   case 'not exist':
-                     this.setState({labelMessage: 'User with this email not exists'});
-                     break;
+                     this.setState({EmailErrorLabel: 'User with this email not exists'});
+                     continue;
                   default:
-                     break;
+                     continue;
                }
-               break;
             case 'password':
-               this.setState({labelColor: 'red'});
                switch (reason[0]) {
                   case 'not correct':
-                     this.setState({labelMessage: 'Wrong password. Try entering the password again and try logging in again'});
-                     break;
+                     this.setState({PasswordErrorLabel: 'Wrong password. Try entering the password again and try logging in again'});
+                     continue;
                   default:
-                     break;
+                     continue;
                }
-               break;
             default:
-               break;
+               continue;
          }
       }
    }
@@ -56,15 +60,18 @@ export default class Login extends Component {
       const { email, password } = this.state;
       const { login } = this.props;
 
+      this.setState({buttonText: <PulseLoader color={'#FFF'} size={10}/>});
       await login(email, password).then(res => {
          if (res) {
             this.checkValidation(res);
+            this.setState({buttonText: 'Login'});
          } else {
             this.setState({
                email: "",
                password: "",
-               labelMessage: 'You have successfully login',
-               labelColor: 'green'
+               EmailErrorLabel: "",
+               PasswordErrorLabel: "",
+               buttonText: 'Login'
             });
          }
       });
@@ -72,38 +79,33 @@ export default class Login extends Component {
 
    render() {
       const { redirect } = this.props,
-            { labelColor, labelMessage } = this.state;
+            { EmailErrorLabel, PasswordErrorLabel, buttonText } = this.state;
 
       return (
          <Form height={480}
-            className='d-flex align-items-center'
+            className='d-flex'
             onSubmit={this.submitForm}>
-            <h2>Login</h2>
-            <InfoMessage>Not a member? You can register 
-               <RedirectSpan onClick={redirect}> here</RedirectSpan>
+            <h2>Sign in with your email</h2>
+            <InfoMessage>Don't have an account?
+               <RedirectSpan onClick={redirect}> Sign up</RedirectSpan>
             </InfoMessage>
-            <div className="form-group">
-               <label htmlFor="email-input">Email</label>
-               <Input 
-                  type="email" 
-                  className="form-control" 
-                  id="email-input" 
-                  placeholder="Enter your email" 
-                  onChange={this.changeInput}/>
-            </div>
-            <div className="form-group">
-               <label htmlFor="password-input">Password</label>
-               <Input 
-                  type="password" 
-                  className="form-control" 
-                  id="password-input" 
-                  placeholder="Enter password" 
-                  onChange={this.changeInput}/>
-            </div>
+            <Input 
+               type="email" 
+               className="form-control" 
+               id="email-input" 
+               placeholder="Email address" 
+               onChange={this.changeInput}/>
+            <ErrorLabel>{EmailErrorLabel}</ErrorLabel>
+            <Input 
+               type="password" 
+               className="form-control" 
+               id="password-input" 
+               placeholder="Password" 
+               onChange={this.changeInput}/>
+            <ErrorLabel>{PasswordErrorLabel}</ErrorLabel>
             <Submit 
                type="submit" 
-               className="btn btn-primary">Login</Submit>
-            <Label color={labelColor}>{labelMessage}</Label>
+               className="btn btn-primary">{buttonText}</Submit>
          </Form>
       )
    }

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PulseLoader from 'react-spinners/PulseLoader';
 
-import { Form, InfoMessage, Input, Submit, Label, RedirectSpan } from '../formInputs/formInputs';
+import { Form, InfoMessage, Input, Submit, ErrorLabel, RedirectSpan } from '../formInputs/formInputs';
 
 export default class Registration extends Component {
    state = {
-      formHeight: 380,
+      formHeight: 420,
       isCreated: false,
       isVerified: false,
       email: "",
@@ -89,6 +89,7 @@ export default class Registration extends Component {
       await createTokenForEmail(email).then(res => {
          if (res) {
             this.checkValidation(res);
+            this.setState({buttonText: 'Continue'});
          } else {
             this.setState({
                isCreated: true,
@@ -111,7 +112,8 @@ export default class Registration extends Component {
          if (res && !res.ok) {
             this.setState({
                labelMessage: 'Incorrect verification code.',
-               labelColor: 'red'
+               labelColor: 'red',
+               buttonText: 'Continue'
             });
          } else {
             this.setState({
@@ -134,13 +136,15 @@ export default class Registration extends Component {
       if (password !== confirm_password) {
          this.setState({
             labelMessage: 'Passwords do not match',
-            labelColor: 'red'
+            labelColor: 'red',
+            buttonText: 'Continue'
          });
       } else {
          this.setState({buttonText: <PulseLoader color={'#FFF'} size={10}/>});
          await registration(email, username, password, first_name).then(res => {
             if (res) {
                this.checkValidation(res);
+               this.setState({buttonText: 'Continue'});
             } else {
                this.setState({
                   email: "",
@@ -151,6 +155,7 @@ export default class Registration extends Component {
                   confirm_password: "",
                   labelMessage: 'You have successfully registered. In 5 seconds you will be redirected to the login page',
                   labelColor: 'green',
+                  buttonText: 'Continue'
                });
 
                setTimeout(redirect, 5000);
@@ -181,17 +186,17 @@ export default class Registration extends Component {
       return (
          <Form 
             height={formHeight}
-            className='registration-form d-flex align-items-center'
+            className='registration-form d-flex'
             onSubmit={submitFunc}>
-            <h2>Registration</h2>
-            <InfoMessage className='info-message'>Already a member? You can log in 
-               <RedirectSpan onClick={this.props.redirect}> here</RedirectSpan>
+            <h2>Sign up with your email</h2>
+            <InfoMessage className='info-message'>Already have an account? 
+               <RedirectSpan onClick={this.props.redirect}> Sign in</RedirectSpan>
             </InfoMessage>
             { content }
             <Submit 
                type="submit" 
                className="btn btn-primary">{buttonText}</Submit>
-            <Label color={labelColor}>{labelMessage}</Label>
+            <ErrorLabel color={labelColor}>{labelMessage}</ErrorLabel>
          </Form>
       )
    }
