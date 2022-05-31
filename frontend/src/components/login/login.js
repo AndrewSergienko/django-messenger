@@ -7,8 +7,10 @@ export default class Login extends Component {
    state = {
       email: "",
       password: "",
+
       EmailErrorLabel: "",
       PasswordErrorLabel: "",
+      
       buttonText: "Login"
    }
 
@@ -43,7 +45,7 @@ export default class Login extends Component {
             case 'password':
                switch (reason[0]) {
                   case 'not correct':
-                     this.setState({PasswordErrorLabel: 'Wrong password. Try entering the password again and try logging in again'});
+                     this.setState({PasswordErrorLabel: 'Wrong password'});
                      continue;
                   default:
                      continue;
@@ -82,7 +84,7 @@ export default class Login extends Component {
             { EmailErrorLabel, PasswordErrorLabel, buttonText } = this.state;
 
       return (
-         <Form height={480}
+         <Form
             className='d-flex'
             onSubmit={this.submitForm}>
             <h2>Sign in with your email</h2>
@@ -94,14 +96,18 @@ export default class Login extends Component {
                className="form-control" 
                id="email-input" 
                placeholder="Email address" 
-               onChange={this.changeInput}/>
+               onChange={this.changeInput}
+               required
+            />
             <ErrorLabel>{EmailErrorLabel}</ErrorLabel>
             <Input 
                type="password" 
                className="form-control" 
                id="password-input" 
                placeholder="Password" 
-               onChange={this.changeInput}/>
+               onChange={this.changeInput}
+               required
+            />
             <ErrorLabel>{PasswordErrorLabel}</ErrorLabel>
             <Submit 
                type="submit" 

@@ -33,8 +33,8 @@ export default class App extends Component {
       return result ? result : '';
    }
 
-   registration = async (email, username, password, first_name) => {
-      const result = await this.server.registrationUser(email, username, password, first_name);
+   registration = async (email, username, password, first_name, last_name) => {
+      const result = await this.server.registrationUser(email, username, password, first_name, last_name);
       return result ? result : '';
    }
 

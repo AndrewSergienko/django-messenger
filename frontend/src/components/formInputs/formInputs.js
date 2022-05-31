@@ -3,10 +3,9 @@ import styled from 'styled-components';
 // Styled components
 export const Form = styled.form`
       flex-direction: column;
-      margin: 100px auto 0 auto;
+      margin: 40px auto 0 auto;
       padding: 60px 80px;
       width: 650px;
-      height: ${props => props.height}px;
       border-radius: 5px;
       background: #fff;
       box-shadow: 0px 0px 43px 12px rgba(0,0,0,0.2);
@@ -31,10 +30,16 @@ export const Submit = styled.button`
    height: 50px;
    margin-top: 20px;
    font-weight: bold;
+   box-shadow: 0px 15px 50px -15px #0D6EFD;
+   
+   &:focus {
+      box-shadow: 0px 15px 50px -15px #0D6EFD;
+   }
 `;
 
 export const ErrorLabel = styled.small`
    width: 100%;
+   margin-top: 5px;
    margin-bottom: 20px;
    font-size: 12px;
    font-weight: bold;

@@ -37,8 +37,8 @@ export default class Server {
                      .catch(() => {return});
    }
 
-   registrationUser = async (email, username, password, first_name) => {
-      const data = {email, username, password, first_name};
+   registrationUser = async (email, username, password, first_name, last_name) => {
+      const data = {email, username, password, first_name, last_name};
       return await this
                      .postResource('/users/', data)
                      .then(errors => errors.json())
