@@ -4,3 +4,4 @@ channels==3.0.4
 channels-redis==3.4.0
 redis==4.2.1
 djangorestframework==3.13.1
+celery~=5.2.7

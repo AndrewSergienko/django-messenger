@@ -1,7 +1,7 @@
 import random
 from .models import CustomUser, EmailToken
 from .serializers import UserSeralizer, EmailTokenSerializer
-from django.core.mail import send_mail
+from .tasks import task_send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import status, serializers
 from rest_framework.views import APIView
@@ -48,16 +48,7 @@ class CreateEmailToken(APIView):
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            title = "Django Messenger: Підтвердження почти."
-            message = f"""
-            Привіт. Цей адрес вказаний під час реєстрації на сервісі Djano Messenger.
-            Тепер його потрібно підтвердити, ввівши код в полі на сторнці.
-
-            Код підтвердження: {token}
-
-            Якщо ви не робили вищенаписаних дій, просто проігноруйте це повідомлення.
-            """
-            send_mail(title, message, 'djangomessenger.noreply@gmail.com', [data['email']])
+            task_send_mail.delay(data['email'], data['token'])
             return Response(status=status.HTTP_200_OK)
         except serializers.ValidationError as e:
             # Перезапис помилок валідацій на зручніші для API, які відбуваються на рівні полей
