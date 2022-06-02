@@ -1,0 +1,13 @@
+.chat{
+    height: 10%;
+    width: 100%;
+    border-bottom: solid 2px black;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.chat:hover{
+    background-color: #e7e7e7;
+}
