@@ -51,7 +51,12 @@ Example: 2022-04-04T16:07:03.233482Z
    - "common" -> пароль дуже поширений;
    - "onlynums" -> пароль містить тільки цифри.
  
-  username, first_name:
+  username:
+   - "no value" -> поле пусте;
+   - "short" -> довжина поля < 4 символа;
+   - "user exist" -> username вже зайнятий;
+  
+  first_name:
    - "no value" -> поле пусте;
   ```
 * `domen/api/users/<int>`
@@ -73,3 +78,54 @@ Example: 2022-04-04T16:07:03.233482Z
   
   ERROR - HTTP 404
   ```
+
+## Test API
+### Registration
+* Крок 1 - POST `domen/api/users/create_token`
+```
+request form data:
+- email
+OK - HTTP 200
+ERROR - HTTP 400
+email:
+  - "no value" -> поле пусте;
+  - "user exist" -> користувач з таким email вже існує;
+  - "not valid" -> email не пройшов валідацію.
+```
+* Крок 2 - POST `domen/api/users/verify_token`
+```
+request form data:
+- token
+OK - HTTP 200
+- email
+ERROR - HTTP 400
+```
+* Крок 3 - POST `domen/api/users/`
+```
+request form data:
+  - email
+  - username
+  - password
+  - first_name
+  - last_name (opt)
+  
+  response: 
+  OK - HTTP 201
+  
+  ERROR - HTTP 400
+  Помилки, які можуть бути:
+  password:
+   - "no value" -> поле пусте;
+   - "short" -> пароль має довжину < 8 символів;
+   - "common" -> пароль дуже поширений;
+   - "onlynums" -> пароль містить тільки цифри.
+ 
+  username:
+   - "no value" -> поле пусте;
+   - "short" -> довжина поля < 4 символа;
+   - "user exist" -> username вже зайнятий;
+  
+  first_name:
+   - "no value" -> поле пусте;
+```
+

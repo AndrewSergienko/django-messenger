@@ -2,13 +2,13 @@ import styled from 'styled-components';
 
 // Styled components
 export const Form = styled.form`
-      flex-direction: column;
-      margin: 40px auto 0 auto;
-      padding: 60px 80px;
-      width: 650px;
-      border-radius: 5px;
-      background: #fff;
-      box-shadow: 0px 0px 43px 12px rgba(0,0,0,0.2);
+    flex-direction: column;
+    margin: 40px auto 0 auto;
+    padding: 60px 80px;
+    width: 650px;
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: 0px 0px 43px 12px rgba(0,0,0,0.2);
    `;
 
 export const InfoMessage = styled.small`

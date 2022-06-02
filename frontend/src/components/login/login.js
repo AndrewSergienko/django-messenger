@@ -7,7 +7,6 @@ export default class Login extends Component {
    state = {
       email: "",
       password: "",
-
       EmailErrorLabel: "",
       PasswordErrorLabel: "",
       
@@ -52,6 +51,35 @@ export default class Login extends Component {
                }
             default:
                continue;
+         }
+      }
+   }
+
+   checkValidation = (errorsObject) => {
+      for (const [field, reason] of Object.entries(errorsObject)) {
+         switch (field) {
+            case 'email':
+               this.setState({labelColor: 'red'});
+               switch (reason[0]) {
+                  case 'not exist':
+                     this.setState({labelMessage: 'User with this email not exists'});
+                     break;
+                  default:
+                     break;
+               }
+               break;
+            case 'password':
+               this.setState({labelColor: 'red'});
+               switch (reason[0]) {
+                  case 'not correct':
+                     this.setState({labelMessage: 'Wrong password. Try entering the password again and try logging in again'});
+                     break;
+                  default:
+                     break;
+               }
+               break;
+            default:
+               break;
          }
       }
    }
