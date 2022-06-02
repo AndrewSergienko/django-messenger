@@ -1,4 +1,4 @@
-from .models import CustomUser
+from .models import CustomUser, EmailToken
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password, ValidationError
 
@@ -28,6 +28,14 @@ class UserSeralizer(serializers.ModelSerializer):
         pass_valid = self._validate_password(attrs['password'])
         if pass_valid:
             errors['password'] = pass_valid
+
+        # Перевірка на те, чи підтверджений email
+        try:
+            token = EmailToken.objects.get(email=attrs['email'])
+            if not token.confirmed:
+                errors['email'] = ['not confirmed']
+        except EmailToken.DoesNotExist:
+            errors['email'] = ['not confirmed']
 
         if errors:
             if return_errors:
@@ -63,3 +71,17 @@ class UserSeralizer(serializers.ModelSerializer):
         user = CustomUser(**cleaned_data)
         user.set_password(self.validated_data['password'])
         return user.save()
+
+
+class EmailTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmailToken
+        fields = '__all__'
+
+    def validate(self, attrs):
+        try:
+            CustomUser.objects.get(email=attrs['email'])
+            raise ValidationError({"email": "user exist"})
+        except CustomUser.DoesNotExist:
+            return attrs
+

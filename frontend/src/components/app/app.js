@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+
+import Server from '../../services/server';
 import Login from '../login';
 import Registration from '../registration';
-import Server from '../../services/server';
 
 export default class App extends Component {
    server = new Server();
@@ -22,8 +23,18 @@ export default class App extends Component {
       console.log(this.state.authToken);
    }
 
-   registration = async (email, username, password, first_name) => {
-      const result = await this.server.registrationUser(email, username, password, first_name);
+   createTokenForEmail = async (email) => {
+      const result = await this.server.createToken(email);
+      return result ? result : '';
+   }
+
+   verifyTokenForEmail = async (email, token) => {
+      const result = await this.server.verifyToken(email, token);
+      return result ? result : '';
+   }
+
+   registration = async (email, username, password, first_name, last_name) => {
+      const result = await this.server.registrationUser(email, username, password, first_name, last_name);
       return result ? result : '';
    }
 
@@ -33,7 +44,7 @@ export default class App extends Component {
       
    render() {
       const { redirect } = this.state,
-            page = redirect ? <Registration registration={this.registration} redirect={this.redirect}/> : 
+            page = redirect ? <Registration createTokenForEmail={this.createTokenForEmail} verifyTokenForEmail={this.verifyTokenForEmail} registration={this.registration} redirect={this.redirect}/> : 
                               <Login login={this.login} redirect={this.redirect}/>;
 
       return (

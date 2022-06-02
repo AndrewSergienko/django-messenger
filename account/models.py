@@ -8,3 +8,9 @@ class CustomUser(AbstractUser):
     email = models.EmailField(max_length=100, unique=True, validators=[email_validator])
     username = models.CharField(max_length=100, blank=True, unique=True, validators=[AbstractUser.username_validator])
     phone = models.CharField(max_length=20, blank=True, unique=True, null=True)
+
+class EmailToken(models.Model):
+    """ Клас для реалізацї підтвердження почти """
+    email = models.EmailField(unique=True)
+    token = models.CharField(max_length=100)
+    confirmed = models.BooleanField(default=False)

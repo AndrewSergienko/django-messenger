@@ -1,5 +1,7 @@
-from .models import CustomUser
-from .serializers import UserSeralizer
+import random
+from .models import CustomUser, EmailToken
+from .serializers import UserSeralizer, EmailTokenSerializer
+from .tasks import task_send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import status, serializers
 from rest_framework.views import APIView
@@ -17,35 +19,13 @@ class UserRegister(APIView):
         try:
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
+                EmailToken.objects.get(email=request.data['email']).delete()
                 return Response(status=status.HTTP_201_CREATED)
         except serializers.ValidationError as e:
-            """ 
-            Якщо email або пароль не проходить валідацію, то метод перезапише помилки в зручному для API форматі
-            Сама валідація відбувається у системних методах Djangо та UserSerializer.validate().
-            """
-
-            email_errors = {
-                'user with this email already exists.': 'user exist',
-                'Enter a valid email address.': 'not valid',
-                'This field may not be blank.': 'no value'
-            }
-
-            if 'email' in e.detail.keys():
-                # Якщо email буде не валідний, то у відповіді буде вказано лиш ця помилка
-                # а інші помилки валідації будуть проігноровані.
-                # Тому, якщо у відповіді є помилка валідації email, то в блоці відбувається перевірка інших полів
-                if len(e.detail['email']) > 1:
-                    # Фікс ситуації, коли чомусь дублюється помилка валідації email
-                    e.detail['email'] = [e.detail['email'][0]]
-                errors = serializer.validate(serializer.initial_data, return_errors=True)
-                e.detail.update(errors)
-
+            # Перезапис помилок валідацій на зручніші для API, які відбуваються на рівні полей
+            # Всі інші кастомні валідації відбуваються в UserSerializer.valiate()
             for error in e.detail.keys():
-                if error == 'email':
-                    e.detail[error][0] = email_errors[e.detail[error][0]]
-                elif error == 'password':
-                    # В методі перезаписується тільки помилка про пустоту поля password.
-                    # Всі інші помилки валідації перезаписуються в UserSeralizer.validate()
+                if error == 'password':
                     if e.detail[error][0] == 'This field may not be blank.':
                         e.detail[error][0] = 'no value'
                 elif error == 'username':
@@ -53,6 +33,50 @@ class UserRegister(APIView):
                         if message == 'user with this username already exists.':
                             e.detail[error][i] = 'user exist'
             raise e
+
+
+class CreateEmailToken(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, format=None):
+        token = str(random.randint(100000, 999999))
+        data = {
+            'email': request.data['email'],
+            'token': token
+        }
+        serializer = EmailTokenSerializer(data=data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            task_send_mail.delay(data['email'], data['token'])
+            return Response(status=status.HTTP_200_OK)
+        except serializers.ValidationError as e:
+            # Перезапис помилок валідацій на зручніші для API, які відбуваються на рівні полей
+            # Всі інші кастомні валідації відбуваються в EmailTokenSerializer.valiate()
+            if e.detail['email'][0] == "Enter a valid email address.":
+                e.detail['email'][0] = "not valid"
+            elif e.detail['email'][0] == 'This field may not be blank.':
+                e.detail['email'][0] = "no value"
+            elif e.detail['email'][0] == "email token with this email already exists.":
+                # Якщо код підвердження вже був відправлений, то відправити його знову
+                EmailToken.objects.get(email=data['email']).delete()
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(status=status.HTTP_200_OK)
+            raise e
+
+
+class VerifyEmailToken(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, format=None):
+        try:
+            email = EmailToken.objects.get(token=request.data['token'])
+            email.confirmed = True
+            email.save()
+            return Response({'email': email.email}, status=status.HTTP_200_OK)
+        except EmailToken.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserDetail(APIView):
