@@ -1,3 +1,4 @@
+from account.serializers import UserSeralizer
 from .serializers import ChatSerializer, MessageSerializer
 from .models import Chat, Message
 from account.models import CustomUser
@@ -13,7 +14,9 @@ class ChatList(APIView):
         serializer = ChatSerializer(chats, many=True)
         for i, chat in enumerate(serializer.data):
             if chat['type'] == 'personal':
-                chat['friend'] = chat['users'][0] if chat['users'][1] == request.user.id else chat['users'][1]
+                friend_id = chat['users'][0] if chat['users'][1] == request.user.id else chat['users'][1]
+                friend_serializer = UserSeralizer(CustomUser.objects.get(id=friend_id))
+                chat['friend'] = friend_serializer.data
                 message_serializer = MessageSerializer(chats[i].messages.last())
                 chat['last_message'] = message_serializer.data
                 del chat['users']
@@ -51,11 +54,11 @@ class Messages(APIView):
         messages_num = int(request.GET['messages_num'])
         if message and direction:
             if direction == 'up':
-                messages = chat.messages.filter(id__lt=message.id).order_by('-id')[:messages_num]
+                messages = chat.messages.filter(id__lt=message.id).order_by('id')[:messages_num]
             elif direction == 'down':
-                messages = chat.messages.filter(id__gt=message.id).order_by('id')[:messages_num]
+                messages = chat.messages.filter(id__gt=message.id).order_by('-id')[:messages_num]
         else:
-            messages = chat.messages.order_by('-id')
+            messages = chat.messages.order_by('id')
 
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
