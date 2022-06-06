@@ -2,5 +2,5 @@ venv
 .idea
 local_settings.py
 __pycache__/
-*.env.dev
 staticfiles
+.env.dev
