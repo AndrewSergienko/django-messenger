@@ -157,6 +157,6 @@ CELERY_RESULT_BACKEND = "redis://redis:6379"
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'djangomessenger.noreply@gmail.com'
-EMAIL_HOST_PASSWORD = 'abobaaboba'
+EMAIL_HOST_PASSWORD = 'ydujznroptencibk'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
