@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
-from .models import CustomUser
+from .models import CustomUser, EmailToken
 
 
 @admin.register(CustomUser)
@@ -32,5 +32,8 @@ class CustomUserAdmin(UserAdmin):
     )
 
 
+@admin.register(EmailToken)
+class EmainTokenAdmin(admin.ModelAdmin):
+    pass
 
 

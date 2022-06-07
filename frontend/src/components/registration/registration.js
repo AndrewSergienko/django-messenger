@@ -1,30 +1,28 @@
 import React, { Component } from 'react';
+import PulseLoader from 'react-spinners/PulseLoader';
 
-import { Form, InfoMessage, Input, Submit, Error, RedirectSpan } from '../login/login';
+import { Form, InfoMessage, Input, Submit, ErrorLabel, RedirectSpan } from '../formInputs/formInputs';
 
 export default class Registration extends Component {
    state = {
+      isCreated: false,
+      isVerified: false,
+
+      email: "",
+      token: "",
       first_name: "",
+      last_name: "",
       username: "",
       password: "",
       confirm_password: "",
-      email: "",
-      errorMessage: "",
 
-      inputsClass: {
-         first_name: "",
-         username: "",
-         password: "",
-         confirm_password: "",
-         email: '', 
-      },
+      emailAndCodeLabel: "",
+      first_nameLabel: "",
+      usernameLabel: "",
+      passwordLabel: "",
+      confirm_passwordLabel: "",
 
-      first_nameValid: false,
-      usernameValid: false,
-      passwordValid: false,
-      confirm_passwordValid: false,
-      emailValid: false,
-      formValid: false
+      buttonText: "Continue"
    }
 
    // Write entered data in inputs to state
@@ -32,167 +30,205 @@ export default class Registration extends Component {
       const name = event.target.name,
             value = event.target.value;
 
-      this.setState({ [name]: value },
-         () => { this.validationInput(name, value) }
-      );
-   }
+      this.setState({ 
+         [name]: value,
 
-   validationInput = (input, value) => {
-      let classes = this.state.inputsClass;
-      let { first_nameValid, usernameValid, passwordValid, confirm_passwordValid, emailValid } = this.state;
-
-      switch(input) {
-         case 'first_name':
-            first_nameValid = value.length >= 2;
-            classes.first_name = first_nameValid ? '' : 'border border-danger';
-            break;
-         case 'username':
-            usernameValid = value.length >= 3;
-            classes.username = usernameValid ? '' : 'border border-danger';
-            break;
-         case 'password':
-            passwordValid = value.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/);
-            classes.password = passwordValid ? '' : 'border border-danger';
-            break;
-         case 'confirm_password':
-            confirm_passwordValid = value === this.state.password;
-            classes.confirm_password = confirm_passwordValid ? '' : 'border border-danger';
-            break;
-         case 'email':
-            emailValid = value.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i);
-            classes.email = emailValid ? '' : 'border border-danger';
-            break;
-         default:
-            break;
-      }
-
-      this.setState({
-         formErrors: classes,
-         first_nameValid,
-         usernameValid,
-         passwordValid,
-         confirm_passwordValid,
-         emailValid
-      }, this.validateForm);
-   }
-
-   validateForm() {
-      const { first_name, username, password, confirm_password, email } = this.state.inputsClass;
-      this.setState({
-         formValid: !first_name && !username && !password && !confirm_password && !email
+         emailAndCodeLabel: "",
+         first_nameLabel: "",
+         usernameLabel: "",
+         passwordLabel: "",
+         confirm_passwordLabel: ""
       });
    }
 
-   // When form is submit
-   submitForm = async (event) => {
-      event.preventDefault();
-      const { first_name, username, email, password, formValid } = this.state;
-      const { registration, error, errorMsg, redirectToOtherPage } = this.props;
-
-      if (formValid) {
-         let msg = "";
-         await registration(email, username, password, first_name);
-
-         if (error) {
-            if (errorMsg) {
-               for (const key in errorMsg) {
-                  msg = errorMsg[key];
-
-                  console.log(errorMsg[key]);
+   checkValidation = (errorsObject) => {
+      for (const [field, reason] of Object.entries(errorsObject)) {
+         switch (field) {
+            case 'email':
+               switch (reason[0]) {
+                  case 'user exist':
+                     this.setState({emailAndCodeLabel: 'User with this email already exists'});
+                     break;
+                  case 'not valid':
+                     this.setState({emailAndCodeLabel: 'Email is not valid'});
+                     break;
+                  default:
+                     break;
                }
-            } else {
-               msg = "Invalid data"
-            }
+               break;
+            case 'password':
+               switch (reason[0]) {
+                  case 'short':
+                     this.setState({passwordLabel: 'Password must be more than 8 characters long'});
+                     break;
+                  case 'common':
+                     this.setState({passwordLabel: 'Password must be alphanumeric and contain a capital letter'});
+                     break;
+                  case 'onlynums':
+                     this.setState({passwordLabel: 'Password must contain not only numbers'});
+                     break;
+                  default:
+                     break;
+               }
+               break;
+            case 'username':
+               switch (reason[0]) {
+                  case 'short':
+                     this.setState({usernameLabel: 'Username must be more than 4 characters long'});
+                     break;
+                  case 'user exist':
+                     this.setState({usernameLabel: 'User with this username already exists'});
+                     break;
+                  default:
+                     break;
+               }
+               break;
+            default:
+               break;
+         }
+      }
+   }
 
-            this.setState({ errorMessage: msg });
-            setTimeout(() => {
-               this.setState({ errorMessage: "" });
-            }, 5000);
+   // When form is submit
+   createToken = async (event) => {
+      event.preventDefault();
+      const { email } = this.state;
+      const { createTokenForEmail } = this.props;
+      
+      this.setState({buttonText: <PulseLoader color={'#FFF'} size={10}/>})
+
+      await createTokenForEmail(email).then(res => {
+         if (res) {
+            this.checkValidation(res);
+            this.setState({buttonText: 'Continue'});
          } else {
             this.setState({
-               first_name: "",
-               username: "",
-               password: "",
-               confirm_password: "",
-               email: "",
-               errorMessage: "Registration successful"
+               isCreated: true,
+               emailAndCodeLabel: '',
+               buttonText: 'Continue'
             });
-
-            setTimeout(() => {
-               this.setState({ errorMessage: "" });
-               redirectToOtherPage();
-            }, 3000);
          }
-      } 
+      });
+   }
+
+   verifyToken = async (event) => {
+      event.preventDefault();
+      const { email, token } = this.state;
+      const { verifyTokenForEmail } = this.props;
+         
+      this.setState({buttonText: <PulseLoader color={'#FFF'} size={10}/>})
+
+      await verifyTokenForEmail(email, token).then(res => {
+         if (res && !res.ok) {
+            this.setState({
+               emailAndCodeLabel: 'Incorrect verification code.',
+               buttonText: 'Continue'
+            });
+         } else {
+            this.setState({
+               isVerified: true,
+               isCreated: false,
+               emailAndCodeLabel: '',
+               buttonText: 'Registration'
+            });
+         }
+      });
+   }
+
+   createUser = async (event) => {
+      event.preventDefault();
+      const { first_name, last_name, username, email, password, confirm_password } = this.state;
+      const { registration, redirect } = this.props;
+      
+      if (password !== confirm_password) {
+         this.setState({
+            confirm_passwordLabel: 'Passwords do not match',
+            buttonText: 'Continue'
+         });
+      } else {
+         this.setState({buttonText: <PulseLoader color={'#FFF'} size={10}/>});
+         await registration(email, username, password, first_name, last_name).then(res => {
+            if (res) {
+               this.checkValidation(res);
+               this.setState({buttonText: 'Continue'});
+            } else {
+               this.setState({
+                  email: "",
+                  token: "",
+                  first_name: "",
+                  username: "",
+                  password: "",
+                  confirm_password: "",
+                  buttonText: 'Continue'
+               });
+
+               redirect();
+            }
+         });
+      }
    }
 
    render() {
-      const { errorMessage } = this.state,
-            { first_name, username, password, confirm_password, email } = this.state.inputsClass;
+      const { 
+               isCreated, 
+               isVerified, 
+               email, 
+               token, 
+               first_name, 
+               last_name, 
+               username, 
+               password, 
+               confirm_password, 
+               emailAndCodeLabel, 
+               first_nameLabel, 
+               usernameLabel, 
+               passwordLabel, 
+               confirm_passwordLabel, 
+               buttonText 
+            } = this.state;
+            
+      let submitFunc = this.createToken;
+      let content = 
+         <>
+            <Input type="email" className="form-control" id="email-input" placeholder="Email" name='email' value={email} onChange={this.changeInput} required />
+            <ErrorLabel>{emailAndCodeLabel}</ErrorLabel>
+         </>
+      if (isCreated) {
+         submitFunc = this.verifyToken;
+         content = 
+            <>
+               <Input type="text" className="form-control" id="token-input" placeholder="Confirmation code" name='token' value={token} onChange={this.changeInput} required/>
+               <ErrorLabel>{emailAndCodeLabel}</ErrorLabel>
+            </>
+      } else if (isVerified) {
+         submitFunc = this.createUser;
+         content = 
+            <>
+               <Input type="text" className="form-control" id="f-name-input" placeholder="First name" name='first_name' value={first_name} onChange={this.changeInput} required />
+               <ErrorLabel>{first_nameLabel}</ErrorLabel>
+               <Input type="text" className="form-control" id="l-name-input" placeholder="Last name" name='last_name' value={last_name} onChange={this.changeInput} />
+               <ErrorLabel></ErrorLabel>
+               <Input type="text" className="form-control" id="username-input" placeholder="Username" name='username' value={username} onChange={this.changeInput} required />
+               <ErrorLabel>{usernameLabel}</ErrorLabel>
+               <Input type="password" className="form-control" id="password-input" placeholder="Password" name='password' value={password} onChange={this.changeInput} required />
+               <ErrorLabel>{passwordLabel}</ErrorLabel>
+               <Input type="password" className="form-control" id="c-password-input" placeholder="Confirm password" name='confirm_password' value={confirm_password} onChange={this.changeInput} required />
+               <ErrorLabel>{confirm_passwordLabel}</ErrorLabel>
+            </>
+      }
 
       return (
-         <Form 
-            height={620}
-            className='registration-form d-flex align-items-center'
-            onSubmit={this.submitForm}>
-            <h2>Registration</h2>
-            <InfoMessage className='info-message'>Already a member? You can log in 
-               <RedirectSpan onClick={this.props.redirectToOtherPage}> here</RedirectSpan>
+         <Form
+            className='registration-form d-flex'
+            onSubmit={submitFunc}>
+            <h2>Sign up with your email</h2>
+            <InfoMessage className='info-message'>Already have an account? 
+               <RedirectSpan onClick={this.props.redirect}> Sign in</RedirectSpan>
             </InfoMessage>
-            <Input 
-               type="text" 
-               className={`form-control ${first_name}`}
-               id="f-name-input" 
-               placeholder="First name"
-               name='first_name'
-               value={this.state.first_name}
-               onChange={this.changeInput}
-               required
-            />
-            <Input 
-               type="text" 
-               className={`form-control ${username}`}
-               id="username-input" 
-               placeholder="Username"
-               name='username'
-               value={this.state.username}
-               onChange={this.changeInput}
-               required
-            />
-            <Input 
-               type="email" 
-               className={`form-control ${email}`}
-               id="email-input" 
-               placeholder="Email"
-               name='email'
-               value={this.state.email}
-               onChange={this.changeInput}
-               required
-            />
-            <Input 
-               type="password" 
-               className={`form-control ${password}`}
-               id="password-input" 
-               placeholder="Password"
-               name='password'
-               value={this.state.password}
-               onChange={this.changeInput}
-               required
-            />
-            <Input 
-               type="password" 
-               className={`form-control ${confirm_password}`}
-               id="c-password-input" 
-               placeholder="Confirm password"
-               name='confirm_password'
-               value={this.state.confirm_password}
-               onChange={this.changeInput}
-               required
-            />
+            { content }
             <Submit 
                type="submit" 
-               className="btn btn-primary">Registration</Submit>
-            <Error>{errorMessage}</Error>
+               className="btn btn-primary">{buttonText}</Submit>
          </Form>
       )
    }
