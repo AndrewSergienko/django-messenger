@@ -11,13 +11,13 @@
     <script>
         const chatSocket = new WebSocket(
             'ws://'
-            + window.location.host
-            + '/ws/chat/'
+            + '//localhost:8000'
+            + '/ws/chat/135f4821bf2a4394301159334f354f622fd606ef/'
         );
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            document.querySelector('#chat-log').value += (data.message.text + '\n');
         };
 
         chatSocket.onclose = function(e) {
@@ -37,8 +37,9 @@
             let id = message.split(' ')[0]
             let text = message.split(' ')[1]
             chatSocket.send(JSON.stringify({
-                'user_id': id,
-                'message': text
+                'type': 'message',
+                'chat': id,
+                'text': text
             }));
             messageInputDom.value = '';
         };
