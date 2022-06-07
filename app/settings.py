@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'testserver']
+ALLOWED_HOSTS = ['146.190.230.146']
 
 INSTALLED_APPS = [
     'account',
@@ -175,8 +175,8 @@ CORS_ALLOW_CREDENTIALS = True
 CELERY_BROKER_URL = "redis://redis:6379"
 CELERY_RESULT_BACKEND = "redis://redis:6379"
 
-EMAIL_HOST = os.environ.get('EMAIL_HOST')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = os.environ.get('EMAIL_PORT')
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS')
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'djangomessenger.noreply@gmail.com'
+EMAIL_HOST_PASSWORD = 'abobaaboba'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
