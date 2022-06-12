@@ -85,7 +85,8 @@ export default class Login extends Component {
       return (
          <Form
             className='d-flex'
-            onSubmit={this.submitForm}>
+            onSubmit={this.submitForm}
+            autoComplete='off'>
             <h2>Sign in with your email</h2>
             <InfoMessage>Don't have an account?
                <RedirectSpan onClick={redirect}> Sign up</RedirectSpan>

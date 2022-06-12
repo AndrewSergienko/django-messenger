@@ -220,7 +220,8 @@ export default class Registration extends Component {
       return (
          <Form
             className='registration-form d-flex'
-            onSubmit={submitFunc}>
+            onSubmit={submitFunc}
+            autoComplete='off'>
             <h2>Sign up with your email</h2>
             <InfoMessage className='info-message'>Already have an account? 
                <RedirectSpan onClick={this.props.redirect}> Sign in</RedirectSpan>
