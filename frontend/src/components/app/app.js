@@ -3,13 +3,15 @@ import React, { Component } from 'react';
 import Server from '../../services/server';
 import Login from '../login';
 import Registration from '../registration';
+import Chat from '../chat';
 
 export default class App extends Component {
    server = new Server();
 
    state = {
       authToken: "",
-      redirect: false
+      redirect: false,
+      chatPage: ''
    }
 
    login = async (email, password) => {
@@ -17,10 +19,9 @@ export default class App extends Component {
       if (!result['token']) {
          return result;
       } else {
-         this.setState({ authToken: result['token'] })
+         this.setState({ authToken: result['token'] });
+         this.setState({ chatPage: <Chat authToken={this.state.authToken} chatList={this.chatList}/> })
       }
-
-      console.log(this.state.authToken);
    }
 
    createTokenForEmail = async (email) => {
@@ -38,18 +39,23 @@ export default class App extends Component {
       return result ? result : '';
    }
 
+   chatList = async (token) => {
+      const result = await this.server.getChatsList(token);
+      return result ? result : '';
+   }
+
    redirect = () => {
       this.setState({redirect: !this.state.redirect});
    }
       
    render() {
-      const { redirect } = this.state,
+      const { redirect, chatPage } = this.state,
             page = redirect ? <Registration createTokenForEmail={this.createTokenForEmail} verifyTokenForEmail={this.verifyTokenForEmail} registration={this.registration} redirect={this.redirect}/> : 
                               <Login login={this.login} redirect={this.redirect}/>;
 
       return (
          <div className="App">
-            { page }
+            { chatPage || page }
          </div>
       );
    }
