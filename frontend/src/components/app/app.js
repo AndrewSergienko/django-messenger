@@ -9,9 +9,15 @@ export default class App extends Component {
    server = new Server();
 
    state = {
-      authToken: "",
+      authToken: localStorage.getItem('authKey') ?? '',
       redirect: false,
       chatPage: ''
+   }
+
+   componentDidMount() {
+      if (localStorage.getItem('authKey')) {
+         this.setState({ chatPage: <Chat authToken={this.state.authToken} chatList={this.chatList}/> })
+      }
    }
 
    login = async (email, password) => {
@@ -19,6 +25,7 @@ export default class App extends Component {
       if (!result['token']) {
          return result;
       } else {
+         localStorage.setItem('authKey', result['token']);
          this.setState({ authToken: result['token'] });
          this.setState({ chatPage: <Chat authToken={this.state.authToken} chatList={this.chatList}/> })
       }
