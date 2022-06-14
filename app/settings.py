@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['146.190.230.146']
+ALLOWED_HOSTS = ['127.0.0.1', '146.190.230.146']
 
 INSTALLED_APPS = [
     'account',
@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
@@ -31,11 +32,13 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+       'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -105,11 +108,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = 'templates/'
+STATIC_URL = '/django_static/'
+STATIC_ROOT = BASE_DIR / 'django_static'
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'templates',
-]
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'django_static',
+# ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
