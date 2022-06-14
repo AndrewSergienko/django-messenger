@@ -30,8 +30,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework.authtoken',
     'storages',
-    'silk',
-    'files'
+    'files',
+    'silk'
 ]
 
 MIDDLEWARE = [
