@@ -8,6 +8,7 @@ RUN pip install -r requirements.txt --default-timeout=100
 RUN pip install gunicorn
 RUN pip install daphne
 
+COPY app/settings.py app/settings.py
 COPY . ./
 
 EXPOSE 8000
