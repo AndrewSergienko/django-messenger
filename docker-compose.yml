@@ -2,7 +2,8 @@ version: "3.2"
 services:
   redis:
     restart: always
-    image: redis:6.2.6-alpine
+    image: redis:5.0.13-alpine
+    command: redis-server
     ports:
       - "6379:6379"
     user: root
@@ -42,6 +43,7 @@ services:
       - db
       - redis
       - api
+    user: root
 
   frontend:
     image: sergienkoandrew/djangomessenger-front:1
