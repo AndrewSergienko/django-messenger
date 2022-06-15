@@ -9,10 +9,11 @@ export default class ChatSideBar extends Component {
          <SideBar>
             {
                this.props.chats.map(chat => {
-                  const normallyDate = chat.last_message.date ? new Date(chat.last_message.date) : '';
+                  const { date, text } = chat.last_message;
+                  const normallyDate = date ? new Date(date) : '';
                   let lastMessageDate = '';
-
-                  if (chat.last_message.date) {
+                  
+                  if (date) {
                      if (new Date(normallyDate).setHours(23, 59, 59) < Date.now()) {
                         lastMessageDate = normallyDate.toLocaleDateString();
                      } else {
@@ -22,10 +23,11 @@ export default class ChatSideBar extends Component {
                      lastMessageDate = '';
                   }
 
-                  return <Message key={chat.id}>
+                  const { id, first_name, last_name } = chat.friend;
+                  return <Message key={chat.id} onClick={() => {this.props.chatMessages(chat.id, 50, id, first_name, last_name); this.props.userInfo()}}>
                      <Avatar src={defaultAvatar} alt='avatar' />
-                     <Username>{chat.friend.first_name} {chat.friend.last_name ? chat.friend.last_name : ''}</Username>
-                     <MessageText>{chat.last_message.text}</MessageText>
+                     <Username>{first_name} {last_name ? last_name : ''}</Username>
+                     <MessageText>{text}</MessageText>
                      <Time>{lastMessageDate}</Time>
                   </Message>
                })
@@ -39,7 +41,7 @@ export default class ChatSideBar extends Component {
 // Styled components
 const SideBar = styled.section`
    width: 25%;
-   height: 929px;
+   height: 100vh;
    border-right: 1px solid #cacaca;
    overflow-y: auto;
 `;
