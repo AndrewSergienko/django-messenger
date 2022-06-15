@@ -49,9 +49,22 @@ export default class Server {
                .catch(() => {return});
    }
 
+   // Chat
    getChatsList = (token) => {
       return this
                .getResource(`/chats/list?token=${token}`, {'Authorization': `Token ${token}`})
                .then(chats => chats.json())
+   }
+
+   getChatMessages = (token, chatId, messagesCount) => {
+      return this
+         .getResource(`/chats/${chatId}/messages?messages_num=${messagesCount}`, {'Authorization': `Token ${token}`})
+         .then(chats => chats.json())
+   }
+
+   getUserInfo = (token) => {
+      return this
+         .getResource(`/users/me`, {'Authorization': `Token ${token}`})
+         .then(chats => chats.json())
    }
 }
