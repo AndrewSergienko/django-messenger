@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['146.190.230.146']
+ALLOWED_HOSTS = ['127.0.0.1', '146.190.230.146']
 
 INSTALLED_APPS = [
     'account',
