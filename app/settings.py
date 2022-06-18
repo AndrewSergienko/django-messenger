@@ -26,10 +26,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'corsheaders',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'silk'
 ]
 
 MIDDLEWARE = [
+    'silk.middleware.SilkyMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
