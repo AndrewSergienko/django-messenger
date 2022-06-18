@@ -11,33 +11,40 @@ from app.redis import redis
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # Створює поле [user, channel_name] для подальшої ідентифікації
+        # Створює поле [user, channel_name] для подальшої ідентифікації та записує його в Redis
         token = self.scope["url_route"]["kwargs"]["token"]
         user_id = await self.get_user_id_by_token(token)
         self.scope['user_id'] = user_id
         redis.set(user_id, self.channel_name)
+
+        await self.send_user_active_status('online')
+
         await self.accept()
 
     async def disconnect(self, code):
+        await self.send_user_active_status('offline')
         redis.delete(self.scope['user_id'])
 
     async def receive(self, text_data=None, bytes_data=None):
-        """ Метод викливається з клієнту користувача """
+        """
+        Метод викливається з клієнту користувача.
+        """
         text_data_json = json.loads(text_data)
-        text_data_json['chat'] = await self.get_chat(text_data_json['chat'])
+        text_data_json['chat'] = await self.get_chat_by_id(text_data_json['chat'])
         text_data_json['user'] = await self.get_user(self.scope['user_id'])
-        send_functions = {
-            'message': self.data_send_message,
-            'read': self.data_send_read_event
+        data_functions = {
+            'message': self.data_message,
+            'read': self.data_read_event
         }
-        send_data = await send_functions[text_data_json['type']](text_data_json)
-        receivers = await self.get_receivers(text_data_json['chat'])
-        for receiver in receivers:
-            channel_name = redis.get(str(receiver))
-            if channel_name:
-                await self.channel_layer.send(channel_name, send_data)
+        data = await data_functions[text_data_json['type']](text_data_json)
+        receivers = await self.get_receivers_in_chat(text_data_json['chat'])
+        await self.send_to_receivers(receivers, data)
 
-    async def data_send_message(self, data):
+    """
+    Data defs:
+    data функції обробляють відповідну подію та формують і повертають дані, які потрібно відправити отримувачу 
+    """
+    async def data_message(self, data):
         message_data = {
             'chat': data['chat'],
             'user': data['user'],
@@ -49,7 +56,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'message_id': message.id
         }
 
-    async def data_send_read_event(self, data):
+    async def data_read_event(self, data):
         message = await self.get_message(data['message_id'])
         message.read.add(data['user'])
         await self.update_obj(message)
@@ -59,6 +66,28 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'chat': data['chat'].id,
             'user': self.scope['user_id']
         }
+
+    async def send_user_active_status(self, status):
+        """
+        Повідомляє друзів про змінення статусу активності користучава.
+        Під "друзями" маються на увазі користувачі, в яких є персональний чат з поточним користувачем
+        TODO: Повідомляти також користувача, який на даний момент переглядає профіль
+        """
+        user = await self.get_user(self.scope['user_id'])
+        personal_chats = await self.get_chats_by_user(user, 'personal')
+        receivers = [await self.get_receivers_in_chat(chat)[0] for chat in personal_chats]
+        data = {
+            'type': 'user_active_status_event',
+            'user_id': self.scope['user_id'],
+            'status': status
+        }
+        await self.send_to_receivers(receivers, data)
+
+    async def send_to_receivers(self, receivers, data):
+        for receiver in receivers:
+            channel_name = redis.get(str(receiver))
+            if channel_name:
+                await self.channel_layer.send(channel_name, data)
 
     async def chat_message(self, event):
         # Метод викликається, якщо ловить повідомлення від іншого користувача
@@ -72,10 +101,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def read_event(self, event):
         await self.send(text_data=json.dumps(event))
 
+    async def user_active_status_event(self, event):
+        await self.send(text_data=json.dumps(event))
+
     # Django ORM не підтримує асинхронність, тому потрібно використовувати декоратори
     @database_sync_to_async
     def get_user_id_by_token(self, key):
-        return Token.objects.get(key=key).user_id
+        return Token.objects.get(key=key).value('user_id')['user_id']
 
     @database_sync_to_async
     def get_user(self, pk, serialize=False):
@@ -92,23 +124,28 @@ class ChatConsumer(AsyncWebsocketConsumer):
         else:
             message = Message.objects.get(id=pk)
         if serialize:
-            if relation == 'chat':
-                relation_serializer = ChatSerializer(message.chat)
-            else:
-                relation_serializer = UserSeralizer(message.user)
             message_serializer = MessageSerializer(message)
             result_data = message_serializer.data
-            result_data[relation] = relation_serializer.data
+            if relation:
+                if relation == 'chat':
+                    relation_serializer = ChatSerializer(message.chat)
+                else:
+                    relation_serializer = UserSeralizer(message.user)
+                result_data[relation] = relation_serializer.data
             return result_data
         return message
 
     @database_sync_to_async
-    def get_chat(self, pk, serialize=False):
+    def get_chat_by_id(self, pk, serialize=False):
         chat = Chat.objects.get(id=pk)
         if serialize:
             serializer = ChatSerializer(chat)
             return serializer.data
         return chat
+
+    @database_sync_to_async
+    def get_chats_by_user(self, user:CustomUser, chat_type):
+        return user.chats.filter(type=chat_type)
 
     @database_sync_to_async
     def create_message(self, data, save=False, return_obj=False):
@@ -127,9 +164,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
         obj.update(**kwargs)
 
     @database_sync_to_async
-    def get_receivers(self, chat):
-        return [user.id for user in chat.users.exclude(id=self.scope['user_id'])]
-
-    @database_sync_to_async
-    def get_model_prefetch(self, model_class, pk, prefetch_fields):
-        return model_class.objects.get(id=pk).prefetch_related(*prefetch_fields)
+    def get_receivers_in_chat(self, chat):
+        return [user['id'] for user in chat.users.exclude(id=self.scope['user_id']).values('id')]
