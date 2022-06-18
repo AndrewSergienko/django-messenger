@@ -141,6 +141,9 @@ STATICFILES_DIRS = (BASE_DIR / 'staticfiles',)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Channels
+ASGI_APPLICATION = 'app.asgi.application'
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
