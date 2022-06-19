@@ -72,6 +72,8 @@ const ChatSection = styled.section`
 
 const Main = styled.section`
    width: 75%;
-   height: 100vh;
+   position: absolute;
+   right: 0;
+   /* min-height: 100vh; */
    overflow-y: auto;
 `;
