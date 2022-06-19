@@ -4,7 +4,10 @@ import styled from 'styled-components';
 import defaultAvatar from '../../assets/default-avatar.png';
 
 export default class Messages extends Component {
-  
+   componentDidUpdate() {
+      window.scrollTo(0, window.innerHeight)
+   }
+
    render() {
       const { messages, me, friend } = this.props;
       return (
