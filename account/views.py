@@ -3,6 +3,7 @@ from .models import CustomUser, EmailToken
 from .serializers import UserSeralizer, EmailTokenSerializer
 from .tasks import task_send_mail
 from django.shortcuts import get_object_or_404
+from django.contrib.postgres.search import TrigramSimilarity
 from rest_framework import status, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -86,4 +87,15 @@ class UserDetail(APIView):
         else:
             user = get_object_or_404(CustomUser, id=pk)
         serializer = UserSeralizer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserSearch(APIView):
+    def get(self, request, format=None):
+        username = request.GET['username']
+        users = CustomUser.objects.annotate(similarity=TrigramSimilarity('username', username))\
+            .filter(similarity__gt=0.3).order_by('-similarity')
+        if len(users) == 0:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = UserSeralizer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
