@@ -5,7 +5,11 @@ import defaultAvatar from '../../assets/default-avatar.png';
 
 export default class Messages extends Component {
    componentDidUpdate() {
-      window.scrollTo(0, window.innerHeight)
+      window.scroll({
+         top: document.body.offsetHeight,
+         left: 0, 
+         behavior: 'smooth',
+      });
    }
 
    render() {
@@ -31,7 +35,7 @@ export default class Messages extends Component {
 // Styled components
 const Message = styled.section`
    display: flex;
-   margin: 0 30px;
+   margin: 0 30px 0 27%;
    padding: 25px 0;
    border-top: 1px solid #cacaca;
 `;
