@@ -7,7 +7,6 @@ try:
 except ImportError:
     local_settings = False
 
-print(local_settings)
 
 if not local_settings:
     SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -25,13 +24,15 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sessions',
     'rest_framework',
     'api',
     'corsheaders',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'storages',
+    'silk'
 ]
 
 MIDDLEWARE = [
@@ -112,12 +113,31 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = '/django_static/'
-STATIC_ROOT = BASE_DIR / 'django_static'
+#USE_SPACES = os.getenv('USE_SPACES') == 'TRUE'
 
-# STATICFILES_DIRS = [
-#     BASE_DIR / 'django_static',
-# ]
+if USE_SPACES:
+    # settings
+    #AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    #AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    #AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_ENDPOINT_URL = 'https://fra1.digitaloceanspaces.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    # static settings
+    AWS_LOCATION = 'static'
+    STATIC_URL = f'https://{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/'
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    # public media settings
+    PUBLIC_MEDIA_LOCATION = 'media'
+    MEDIA_URL = f'https://{AWS_S3_ENDPOINT_URL}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'app.storage_backends.PublicMediaStorage'
+else:
+    STATIC_URL = '/static/'
+    STATIC_ROOT = BASE_DIR / 'staticfiles'
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'mediafiles'
+
+STATICFILES_DIRS = (BASE_DIR / 'staticfiles',)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
