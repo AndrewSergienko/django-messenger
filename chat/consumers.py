@@ -75,7 +75,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """
         user = await self.get_user(self.scope['user_id'])
         personal_chats = await self.get_chats_by_user(user, 'personal')
-        receivers = [await self.get_receivers_in_chat(chat)[0] for chat in personal_chats]
+        receivers = []
+        for chat in personal_chats:
+            receivers += await self.get_receivers_in_chat(chat)
         data = {
             'type': 'user_active_status_event',
             'user_id': self.scope['user_id'],
@@ -107,7 +109,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Django ORM не підтримує асинхронність, тому потрібно використовувати декоратори
     @database_sync_to_async
     def get_user_id_by_token(self, key):
-        return Token.objects.get(key=key).value('user_id')['user_id']
+        return Token.objects.values_list('user_id', flat=True).get(key=key)
 
     @database_sync_to_async
     def get_user(self, pk, serialize=False):
@@ -145,7 +147,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_chats_by_user(self, user:CustomUser, chat_type):
-        return user.chats.filter(type=chat_type)
+        chats = user.chats.filter(type=chat_type)
+        # якщо залишити в QuerySet, то при спробі отримати елемент, буде виконаний запрос в базу
+        # така спроба є в методі, який не обернутий декоратором database_sync_to_async, тому буде помилка
+        return list(chats)
 
     @database_sync_to_async
     def create_message(self, data, save=False, return_obj=False):
@@ -164,5 +169,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         obj.update(**kwargs)
 
     @database_sync_to_async
-    def get_receivers_in_chat(self, chat):
-        return [user['id'] for user in chat.users.exclude(id=self.scope['user_id']).values('id')]
+    def get_receivers_in_chat(self, chat: Chat):
+        receivers = chat.users.values_list('id', flat=True).exclude(id=self.scope['user_id'])
+        return list(receivers)
