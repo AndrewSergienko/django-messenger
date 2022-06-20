@@ -7,36 +7,30 @@ try:
 except ImportError:
     local_settings = False
 
-if not local_settings:
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['142.93.235.128', '127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'testserver']
 
 INSTALLED_APPS = [
     'account',
     'channels',
     'chat',
     'django.contrib.admin',
-    'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
     'corsheaders',
     'rest_framework.authtoken',
-    'storages',
-    'files',
-    'silk'
+    'storages'
 ]
 
 MIDDLEWARE = [
-    'silk.middleware.SilkyMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -68,8 +62,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'app.wsgi.application'
 
-# Channels
-ASGI_APPLICATION = 'app.asgi.application'
 
 # Database
 
@@ -141,11 +133,14 @@ STATICFILES_DIRS = (BASE_DIR / 'staticfiles',)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Channels
+ASGI_APPLICATION = 'app.asgi.application'
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": ["redis://:5j426FnDKe@redis:6379/0"],
+            "hosts": [('127.0.0.1', 6379)]
         }
     }
 }
@@ -168,18 +163,8 @@ REST_FRAMEWORK = {
     ]
 }
 
-REDIS_HOST = 'redis'
-REDIS_PORT = 6379
-REDIS_DB = 0
-
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-CELERY_BROKER_URL = "redis://default:5j426FnDKe@redis:6379"
-CELERY_RESULT_BACKEND = "redis://default:5j426FnDKe@redis:6379"
-
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'djangomessenger.noreply@gmail.com'
-EMAIL_HOST_PASSWORD = 'ydujznroptencibk'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"

@@ -3,4 +3,3 @@ venv
 local_settings.py
 __pycache__/
 staticfiles
-.env.dev
