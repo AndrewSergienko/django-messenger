@@ -57,23 +57,11 @@ export default class Chat extends Component {
       return (
          <ChatSection>
             <ChatSideBar chats={this.state.chats} userInfo={this.userInfo} chatMessages={this.chatMessages}/>
-            <Main>
-               <Messages messages={this.state.messages} me={this.state.me} friend={this.state.friend}/>
-            </Main>
+            <Messages messages={this.state.messages} me={this.state.me} friend={this.state.friend}/>
          </ChatSection>
       )
    }
 }
 
 // Styled components
-const ChatSection = styled.section`
-   display: flex;
-`;
-
-const Main = styled.section`
-   width: 75%;
-   position: absolute;
-   right: 0;
-   /* min-height: 100vh; */
-   overflow-y: auto;
-`;
+const ChatSection = styled.section``;
