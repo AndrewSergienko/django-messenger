@@ -8,14 +8,9 @@ from rest_framework import status
 
 class FileDownload(APIView):
     def get(self, request, pk, format=None):
-        try:
-            file = File.objects.get(id=pk)
-            serializer = FileSerializer(file)
-            data = serializer.data
-            data['file'] = data['file'].split('?')[0]
-            return Response(data, status=status.HTTP_200_OK)
-        except File.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        file = File.objects.get(id=pk)
+        serializer = FileSerializer(file)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class FileUpload(APIView):
@@ -26,9 +21,10 @@ class FileUpload(APIView):
             data = {
                 'file': file,
                 'type': type,
+                'user': request.user
             }
             upload = File(**data)
             upload.save()
-            return Response({'id': upload.id, 'url': upload.file.url}, status=status.HTTP_200_OK)
+            return Response({'url': upload.file.url}, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
