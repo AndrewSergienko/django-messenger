@@ -8,18 +8,8 @@ services:
       - "6379:6379"
     user: root
 
-  db:
-    restart: always
-    image: postgres:alpine
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    env_file:
-      - .env.dev
-    ports:
-      - "5432:5432"
-
   api:
-    image: sergienkoandrew/djangomessenger-api
+    image: sergienkoandrew/djangomessenger-api:3
     restart: always
     container_name: code
     command: bash -c "python wait_for_db.py &&
@@ -30,17 +20,15 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
       - redis
 
   celery:
-    image: sergienkoandrew/djangomessenger-api
+    image: sergienkoandrew/djangomessenger-api:3
     command: bash -c "pip install gevent &&
                       celery -A app worker -l info -P gevent"
     env_file:
       - ./.env.dev
     depends_on:
-      - db
       - redis
       - api
     user: root
