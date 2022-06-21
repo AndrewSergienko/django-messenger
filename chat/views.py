@@ -2,7 +2,7 @@ from account.serializers import UserSeralizer
 from .serializers import ChatSerializer, MessageSerializer
 from .models import Chat, Message
 from account.models import CustomUser
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -37,6 +37,13 @@ class ChatCreate(APIView):
                     return Response({'user_id': 'not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ChatRemove(APIView):
+    def post(self, request, format=None):
+        chat = get_object_or_404(Chat, id=request.data['chat_id'])
+        chat.delete()
+        return Response(status=status.HTTP_200_OK)
+
+
 class ChatDetail(APIView):
     def get(self, request, pk, format=None):
         chat = get_object_or_404(Chat, id=pk)
@@ -63,6 +70,3 @@ class Messages(APIView):
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-def room(request):
-    return render(request, 'chat/room.html')
