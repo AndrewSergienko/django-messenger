@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
 import Server from '../../services/server';
 
 import ChatSideBar from '../chatSideBar/chatSideBar';
@@ -42,6 +41,10 @@ export default class Chat extends Component {
       })
    }
 
+   addNewMessage = (chatId, date, text, senderId) => {
+      this.setState({messages: [...this.state.messages, {chat: chatId, date, read: [], text, user: senderId}]})
+   }
+
    userInfo = async () => {
       const result = await this.server.getUserInfo(this.props.authToken);
       this.setState({
@@ -55,13 +58,18 @@ export default class Chat extends Component {
 
    render() {
       return (
-         <ChatSection>
-            <ChatSideBar chats={this.state.chats} userInfo={this.userInfo} chatMessages={this.chatMessages}/>
-            <Messages messages={this.state.messages} me={this.state.me} friend={this.state.friend}/>
-         </ChatSection>
+         <>
+            <ChatSideBar 
+               chats={this.state.chats}
+               userInfo={this.userInfo}
+               chatMessages={this.chatMessages}/>
+            <Messages 
+               authToken={this.props.authToken} 
+               messages={this.state.messages} 
+               me={this.state.me} 
+               friend={this.state.friend} 
+               addNewMessage={this.addNewMessage}/>
+         </>
       )
    }
 }
-
-// Styled components
-const ChatSection = styled.section``;
