@@ -10,7 +10,9 @@ class FileDownload(APIView):
     def get(self, request, pk, format=None):
         file = File.objects.get(id=pk)
         serializer = FileSerializer(file)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        data = serializer.data
+        data['file'] = data['file'].split('?')[0]
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class FileUpload(APIView):
