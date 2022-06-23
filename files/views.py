@@ -23,10 +23,10 @@ class FileUpload(APIView):
             data = {
                 'file': file,
                 'type': type,
-                'user': request.user
+                'message': request.user
             }
             upload = File(**data)
             upload.save()
-            return Response({'url': upload.file.url}, status=status.HTTP_200_OK)
+            return Response({'id': upload.id, 'url': upload.file.url}, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
