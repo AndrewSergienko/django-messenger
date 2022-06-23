@@ -32,6 +32,9 @@ class ChatCreate(APIView):
                     user = CustomUser.objects.get(id=request.data['user_id'])
                     chat = serializer.save()
                     chat.users.add(request.user, user)
+                    # TEMP SOLUTION
+                    message = Message(chat=chat, user=request.user, text="temp init")
+                    message.save()
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 except CustomUser.DoesNotExist:
                     return Response({'user_id': 'not exist'}, status=status.HTTP_400_BAD_REQUEST)
