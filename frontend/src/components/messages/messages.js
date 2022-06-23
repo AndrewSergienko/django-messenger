@@ -14,14 +14,14 @@ export default class Messages extends Component {
          top: document.body.offsetHeight,
          left: 0, 
          behavior: 'smooth',
-      });
+      }); 
    }
 
    onSubmit(event,  chatId) {
-      const { authToken, addNewMessage, messages, me } = this.props;
+      const { authToken, addNewMessageToChat, addNewMessageToSideBar, messages, me } = this.props;
       event.preventDefault();
       const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
-      chatSocket.onopen = () => {
+      chatSocket.onopen = (event) => {
          chatSocket.send(
             JSON.stringify({
                'type': 'message',
@@ -29,15 +29,24 @@ export default class Messages extends Component {
                'text': this.state.message
             })
          );
-         addNewMessage(messages[0].chat, new Date(), this.state.message, me.id);
+         addNewMessageToChat(messages[0].chat, this.state.message, me.id);
+         addNewMessageToSideBar({chatId: messages[0].chat, text: this.state.message, date: new Date()});
          this.setState({message: ''})
-         // chatMessages(messages[0].chat, 50, friend.id, friend.first_name, friend.last_name)
       }
    }
 
    render() {
-      const { messages, me, friend } = this.props;
+      const { authToken, addNewMessageToChat, addNewMessageToSideBar, activeChat, messages, me, friend } = this.props;
+      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
       
+      chatSocket.onmessage = (event) => {
+         const data = JSON.parse(event.data);
+         addNewMessageToSideBar(data);
+         if (data.message.chat === activeChat) {
+            addNewMessageToChat(data.message.chat, data.message.text, data.message.user.id);
+         }
+      }
+
       return (
          <Wrap>
             {messages.map((message, index) => {
