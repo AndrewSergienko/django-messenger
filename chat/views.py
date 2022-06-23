@@ -17,8 +17,12 @@ class ChatList(APIView):
                 friend_id = chat['users'][0] if chat['users'][1] == request.user.id else chat['users'][1]
                 friend_serializer = UserSeralizer(CustomUser.objects.get(id=friend_id))
                 chat['friend'] = friend_serializer.data
-                message_serializer = MessageSerializer(chats[i].messages.last())
-                chat['last_message'] = message_serializer.data
+                last_message = chats[i].messages.last()
+                if last_message:
+                    message_serializer = MessageSerializer(chats[i].messages.last())
+                    chat['last_message'] = message_serializer.data
+                else:
+                    chat['last_message'] = None
                 del chat['users']
         return Response(serializer.data, status=status.HTTP_200_OK)
 
