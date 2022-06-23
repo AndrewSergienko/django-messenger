@@ -9,6 +9,7 @@ export default class Chat extends Component {
 
    state = {
       chats: [],
+      activeChat: 0,
       messages: [],
       me: {
          id: '',
@@ -41,8 +42,38 @@ export default class Chat extends Component {
       })
    }
 
-   addNewMessage = (chatId, date, text, senderId) => {
-      this.setState({messages: [...this.state.messages, {chat: chatId, date, read: [], text, user: senderId}]})
+   addNewMessageToChat = (chatId, text, senderId) => {
+      this.setState({
+         messages: [...this.state.messages, {chat: chatId, date: new Date(), read: [], text, user: senderId}]
+      })
+   }
+
+   addNewMessageToSideBar = (data) => {
+      if (data.type === 'message') {
+         this.setState({
+            chats: this.state.chats.map(chat => {
+               if (chat.id === data.message.chat) {
+                  return {...chat, last_message: {text: data.message.text, date: data.message.date}}
+               } else {
+                  return chat
+               }
+            })
+         })
+      } else {
+         this.setState({
+            chats: this.state.chats.map(chat => {
+               if (chat.id === data.chatId) {
+                  return {...chat, last_message: {text: data.text, date: data.date}}
+               } else {
+                  return chat
+               }
+            })
+         })
+      }
+   }
+
+   setActiveChat = (chatId) => {
+      this.setState({activeChat: chatId})
    }
 
    userInfo = async () => {
@@ -62,13 +93,16 @@ export default class Chat extends Component {
             <ChatSideBar 
                chats={this.state.chats}
                userInfo={this.userInfo}
-               chatMessages={this.chatMessages}/>
+               chatMessages={this.chatMessages}
+               setActiveChat={this.setActiveChat}/>
             <Messages 
                authToken={this.props.authToken} 
                messages={this.state.messages} 
                me={this.state.me} 
                friend={this.state.friend} 
-               addNewMessage={this.addNewMessage}/>
+               activeChat={this.state.activeChat}
+               addNewMessageToChat={this.addNewMessageToChat}
+               addNewMessageToSideBar={this.addNewMessageToSideBar}/>
          </>
       )
    }
