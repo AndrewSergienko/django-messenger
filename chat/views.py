@@ -44,8 +44,11 @@ class ChatCreate(APIView):
 class ChatRemove(APIView):
     def post(self, request, format=None):
         chat = get_object_or_404(Chat, id=request.data['chat_id'])
-        chat.delete()
-        return Response(status=status.HTTP_200_OK)
+        if request.user in chat.users.all():
+            chat.delete()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response({'reason': 'has no right'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChatDetail(APIView):
