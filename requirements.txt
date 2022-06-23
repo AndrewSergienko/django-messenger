@@ -6,3 +6,4 @@ redis==4.2.1
 djangorestframework==3.13.1
 celery~=5.2.7
 django-cors-headers==3.11.0
+gevent==21.12.0

@@ -3,3 +3,5 @@ venv
 local_settings.py
 __pycache__/
 .env.dev
+docker-compose.yml
+redis.conf

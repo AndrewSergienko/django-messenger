@@ -152,8 +152,8 @@ REDIS_DB = 0
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-CELERY_BROKER_URL = "redis://redis:6379"
-CELERY_RESULT_BACKEND = "redis://redis:6379"
+CELERY_BROKER_URL = "redis://default:5j426FnDKe@redis:6379"
+CELERY_RESULT_BACKEND = "redis://default:5j426FnDKe@redis:6379"
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'djangomessenger.noreply@gmail.com'

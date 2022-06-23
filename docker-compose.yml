@@ -1,15 +1,14 @@
 version: "3.2"
 services:
   redis:
+    image: redis
     restart: always
-    image: redis:5.0.13-alpine
-    command: redis-server
+    command: redis-server --requirepass 5j426FnDKe
     ports:
       - "6379:6379"
-    user: root
 
   api:
-    image: sergienkoandrew/djangomessenger-api:3
+    image: sergienkoandrew/djangomessenger-api:7
     restart: always
     container_name: code
     command: bash -c "python wait_for_db.py &&
@@ -23,13 +22,11 @@ services:
       - redis
 
   celery:
-    image: sergienkoandrew/djangomessenger-api:3
-    command: bash -c "pip install gevent &&
-                      celery -A app worker -l info -P gevent"
+    image: sergienkoandrew/djangomessenger-api:7
+    command: bash -c "celery -A app worker -l info -P gevent"
     env_file:
       - ./.env.dev
     depends_on:
-      - redis
       - api
     user: root
 
