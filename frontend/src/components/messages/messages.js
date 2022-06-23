@@ -61,7 +61,7 @@ export default class Messages extends Component {
                   </section>
                </Message>
             })}
-            {messages.length > 0 ? <form onSubmit={(event) => this.onSubmit(event, messages[0].chat)}>
+            {activeChat ? <form onSubmit={(event) => this.onSubmit(event, messages[0].chat)}>
                <Input 
                   type='text' 
                   placeholder='Enter your message...' 
@@ -81,6 +81,7 @@ export default class Messages extends Component {
 // Styled components
 const Wrap = styled.section`
    margin-left: 27%;
+   margin-bottom: 25px;
 `
 
 const Message = styled.section`
@@ -112,7 +113,9 @@ const Time = styled.span`
 `
 
 const Input = styled.input`
-   width: 93%;
+   position: fixed;
+   bottom: 0;
+   width: 69%;
    margin: 20px 0;
    padding: 10px;
 
@@ -126,7 +129,10 @@ const Input = styled.input`
 `;
 
 const Send = styled.button`
-   margin-left: 20px;
+   position: fixed;
+   bottom: 0;
+   right: 0;
+   margin: 20px 20px 25px 20px;
    background: none;
    border: none;
    transition: 0.2s;
