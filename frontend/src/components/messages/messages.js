@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import defaultAvatar from '../../assets/default-avatar.png';
 import sendButton from '../../assets/send-button.png';
 
+import EmptyChat from '../emptyChat';
+
 export default class Messages extends Component {
    state = {
       message: ''
@@ -18,10 +20,10 @@ export default class Messages extends Component {
    }
 
    onSubmit(event,  chatId) {
-      const { authToken, addNewMessageToChat, addNewMessageToSideBar, messages, me } = this.props;
+      const { authToken, addNewMessageToChat, addNewMessageToSideBar, me } = this.props;
       event.preventDefault();
-      const chatSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${authToken}/`);
-      chatSocket.onopen = (event) => {
+      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
+      chatSocket.onopen = () => {
          chatSocket.send(
             JSON.stringify({
                'type': 'message',
@@ -37,7 +39,7 @@ export default class Messages extends Component {
 
    render() {
       const { authToken, addNewMessageToChat, addNewMessageToSideBar, activeChat, messages, me, friend } = this.props;
-      const chatSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${authToken}/`);
+      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
       
       chatSocket.onmessage = (event) => {
          const data = JSON.parse(event.data);
@@ -49,7 +51,7 @@ export default class Messages extends Component {
 
       return (
          <Wrap>
-            {messages.map((message, index) => {
+            {messages.length ? messages.map((message, index) => {
                return <Message key={index}>
                   <Avatar src={defaultAvatar} alt='Avatar'/>
                   <section>
@@ -60,7 +62,7 @@ export default class Messages extends Component {
                      </section>
                   </section>
                </Message>
-            })}
+            }) : <EmptyChat/> }
             {activeChat ? <form onSubmit={(event) => this.onSubmit(event, activeChat)}>
                <Input 
                   type='text' 

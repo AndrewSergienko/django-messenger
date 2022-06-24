@@ -95,14 +95,14 @@ export default class Chat extends Component {
                userInfo={this.userInfo}
                chatMessages={this.chatMessages}
                setActiveChat={this.setActiveChat}/>
-            <Messages 
+            { this.state.activeChat ? <Messages 
                authToken={this.props.authToken} 
                messages={this.state.messages} 
                me={this.state.me} 
                friend={this.state.friend} 
                activeChat={this.state.activeChat}
                addNewMessageToChat={this.addNewMessageToChat}
-               addNewMessageToSideBar={this.addNewMessageToSideBar}/>
+               addNewMessageToSideBar={this.addNewMessageToSideBar}/> : ''}
          </>
       )
    }
