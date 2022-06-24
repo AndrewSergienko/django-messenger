@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import Server from '../../services/server';
 
 import ChatSideBar from '../chatSideBar/chatSideBar';
@@ -102,8 +103,18 @@ export default class Chat extends Component {
                friend={this.state.friend} 
                activeChat={this.state.activeChat}
                addNewMessageToChat={this.addNewMessageToChat}
-               addNewMessageToSideBar={this.addNewMessageToSideBar}/> : ''}
+               addNewMessageToSideBar={this.addNewMessageToSideBar}/> : <ChooseChat>Select a chat to start a messaging</ChooseChat>}
          </>
       )
    }
 }
+
+const ChooseChat = styled.p`
+   position: absolute;
+   top: 50%;
+   width: 100%;
+   padding-left: 27%;
+
+   font-size: 20px;
+   text-align: center;
+`
