@@ -1,22 +1,14 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import Modal from 'react-modal';
 
 import defaultAvatar from '../../assets/default-avatar.png';
 import sendButton from '../../assets/send-button.png';
 
 import EmptyChat from '../emptyChat';
-import Profile from '../profile/profile';
 
 export default class Messages extends Component {
    state = {
-      message: '',
-      modalIsOpen: false,
-      userId: 0
-   } 
-
-   componentDidMount() {
-      Modal.setAppElement('body');
+      message: ''
    }
 
    componentDidUpdate() {
@@ -28,38 +20,40 @@ export default class Messages extends Component {
    }
 
    onSubmit(event,  chatId) {
-      const { addNewMessageToChat, addNewMessageToSideBar, me } = this.props;
+      const { authToken, addNewMessageToChat, addNewMessageToSideBar, me } = this.props;
       event.preventDefault();
-      
-      this.props.chatSocket.send(
-         JSON.stringify({
-            'type': 'message',
-            'chat': chatId,
-            'text': this.state.message
-         })
-      );
-      
-      addNewMessageToChat(chatId, this.state.message, me.id);
-      addNewMessageToSideBar({chatId: chatId, text: this.state.message, date: new Date()});
-      this.setState({message: ''})
-   }
-
-   openModal = () => {
-      this.setState({modalIsOpen: true})
-   }
-
-   closeModal = () => {
-      this.setState({modalIsOpen: false})
+      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
+      chatSocket.onopen = () => {
+         chatSocket.send(
+            JSON.stringify({
+               'type': 'message',
+               'chat': chatId,
+               'text': this.state.message
+            })
+         );
+         addNewMessageToChat(chatId, this.state.message, me.id);
+         addNewMessageToSideBar({chatId: chatId, text: this.state.message, date: new Date()});
+         this.setState({message: ''})
+      }
    }
 
    render() {
-      const { activeChat, messages, me, friend } = this.props;
+      const { authToken, addNewMessageToChat, addNewMessageToSideBar, activeChat, messages, me, friend } = this.props;
+      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
+      
+      chatSocket.onmessage = (event) => {
+         const data = JSON.parse(event.data);
+         addNewMessageToSideBar(data);
+         if (data.message.chat === activeChat) {
+            addNewMessageToChat(data.message.chat, data.message.text, data.message.user.id);
+         }
+      }
 
       return (
          <Wrap>
             {messages.length ? messages.map((message, index) => {
                return <Message key={index}>
-                  <Avatar src={defaultAvatar} alt='Avatar' onClick={() => {this.openModal(); this.setState({userId: message.user});}}/>
+                  <Avatar src={defaultAvatar} alt='Avatar'/>
                   <section>
                      <Username>{friend.id === message.user ? `${friend.first_name} ${friend.last_name}` : `${me.first_name} ${me.last_name}`}</Username>
                      <Time>{new Date(message.date).toLocaleString('en-US', {month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false})}</Time>
@@ -80,7 +74,6 @@ export default class Messages extends Component {
                   <img src={sendButton} alt='Send'/>
                </Send>
             </form> : ''}
-            <Profile isOpen={this.state.modalIsOpen} info={this.state.userId === me.id ? me : friend} closeModal={this.closeModal}/>
          </Wrap>
       )
    }
@@ -89,9 +82,8 @@ export default class Messages extends Component {
 
 // Styled components
 const Wrap = styled.section`
-   padding-top: 3.7%;
    margin-left: 27%;
-   margin-bottom: 75px;
+   margin-bottom: 25px;
 `
 
 const Message = styled.section`
@@ -99,18 +91,12 @@ const Message = styled.section`
    margin-right: 30px;
    padding: 25px 0;
    border-top: 1px solid #cacaca;
-
-   &:first-child {
-      border-top: none;
-   }
 `;
 
 const Avatar = styled.img`
    width: 48px;
-   height: 48px;
    margin-right: 20px;
    border-radius: 50%;
-   cursor: pointer;
 `
 
 const Username = styled.span`
