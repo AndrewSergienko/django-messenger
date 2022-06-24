@@ -8,7 +8,7 @@ services:
       - "6379:6379"
 
   api:
-    image: sergienkoandrew/djangomessenger-api:7
+    image: sergienkoandrew/djangomessenger-api:16
     restart: always
     container_name: code
     command: bash -c "python wait_for_db.py &&
@@ -22,7 +22,7 @@ services:
       - redis
 
   celery:
-    image: sergienkoandrew/djangomessenger-api:7
+    image: sergienkoandrew/djangomessenger-api:16
     command: bash -c "celery -A app worker -l info -P gevent"
     env_file:
       - ./.env.dev
@@ -31,7 +31,7 @@ services:
     user: root
 
   frontend:
-    image: sergienkoandrew/djangomessenger-front:1
+    image: sergienkoandrew/djangomessenger-front:3
     restart: always
     command: npm start
     container_name: front

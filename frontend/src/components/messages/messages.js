@@ -20,7 +20,7 @@ export default class Messages extends Component {
    onSubmit(event,  chatId) {
       const { authToken, addNewMessageToChat, addNewMessageToSideBar, messages, me } = this.props;
       event.preventDefault();
-      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
+      const chatSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${authToken}/`);
       chatSocket.onopen = (event) => {
          chatSocket.send(
             JSON.stringify({
@@ -37,7 +37,7 @@ export default class Messages extends Component {
 
    render() {
       const { authToken, addNewMessageToChat, addNewMessageToSideBar, activeChat, messages, me, friend } = this.props;
-      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
+      const chatSocket = new WebSocket(`ws://127.0.0.1:8000/ws/chat/${authToken}/`);
       
       chatSocket.onmessage = (event) => {
          const data = JSON.parse(event.data);

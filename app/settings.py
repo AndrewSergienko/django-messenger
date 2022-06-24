@@ -7,6 +7,8 @@ try:
 except ImportError:
     local_settings = False
 
+print(local_settings)
+
 if not local_settings:
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
@@ -14,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['142.93.235.128']
+ALLOWED_HOSTS = ['142.93.235.128', '127.0.0.1']
 
 INSTALLED_APPS = [
     'account',
@@ -25,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sessions',
     'rest_framework',
     'api',
     'corsheaders',
@@ -32,7 +35,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-       'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -122,7 +125,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)]
+            "hosts": ["redis://:5j426FnDKe@redis:6379/0"],
         }
     }
 }
@@ -145,7 +148,7 @@ REST_FRAMEWORK = {
     ]
 }
 
-REDIS_HOST = 'localhost'
+REDIS_HOST = 'redis'
 REDIS_PORT = 6379
 REDIS_DB = 0
 
