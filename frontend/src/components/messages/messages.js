@@ -29,8 +29,8 @@ export default class Messages extends Component {
                'text': this.state.message
             })
          );
-         addNewMessageToChat(messages[0].chat, this.state.message, me.id);
-         addNewMessageToSideBar({chatId: messages[0].chat, text: this.state.message, date: new Date()});
+         addNewMessageToChat(chatId, this.state.message, me.id);
+         addNewMessageToSideBar({chatId: chatId, text: this.state.message, date: new Date()});
          this.setState({message: ''})
       }
    }
@@ -61,7 +61,7 @@ export default class Messages extends Component {
                   </section>
                </Message>
             })}
-            {activeChat ? <form onSubmit={(event) => this.onSubmit(event, messages[0].chat)}>
+            {activeChat ? <form onSubmit={(event) => this.onSubmit(event, activeChat)}>
                <Input 
                   type='text' 
                   placeholder='Enter your message...' 
