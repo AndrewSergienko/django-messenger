@@ -7,9 +7,19 @@ import sendButton from '../../assets/send-button.png';
 import EmptyChat from '../emptyChat';
 
 export default class Messages extends Component {
+   chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${this.props.authToken}/`);
+
    state = {
-      message: ''
+      message: '',
+      chatSocket: ''
    }
+
+   componentDidMount() {
+      this.chatSocket.onopen = () => {
+         console.log('WebSocket is connected');
+      }
+   }
+   
 
    componentDidUpdate() {
       window.scroll({
@@ -20,28 +30,26 @@ export default class Messages extends Component {
    }
 
    onSubmit(event,  chatId) {
-      const { authToken, addNewMessageToChat, addNewMessageToSideBar, me } = this.props;
+      const { addNewMessageToChat, addNewMessageToSideBar, me } = this.props;
       event.preventDefault();
-      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
-      chatSocket.onopen = () => {
-         chatSocket.send(
-            JSON.stringify({
-               'type': 'message',
-               'chat': chatId,
-               'text': this.state.message
-            })
-         );
-         addNewMessageToChat(chatId, this.state.message, me.id);
-         addNewMessageToSideBar({chatId: chatId, text: this.state.message, date: new Date()});
-         this.setState({message: ''})
-      }
+      
+      this.chatSocket.send(
+         JSON.stringify({
+            'type': 'message',
+            'chat': chatId,
+            'text': this.state.message
+         })
+      );
+      
+      addNewMessageToChat(chatId, this.state.message, me.id);
+      addNewMessageToSideBar({chatId: chatId, text: this.state.message, date: new Date()});
+      this.setState({message: ''})
    }
 
    render() {
-      const { authToken, addNewMessageToChat, addNewMessageToSideBar, activeChat, messages, me, friend } = this.props;
-      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
+      const { addNewMessageToChat, addNewMessageToSideBar, activeChat, messages, me, friend } = this.props;
       
-      chatSocket.onmessage = (event) => {
+      this.chatSocket.onmessage = (event) => {
          const data = JSON.parse(event.data);
          addNewMessageToSideBar(data);
          if (data.message.chat === activeChat) {
