@@ -29,16 +29,20 @@ class ChatList(APIView):
 
 class ChatCreate(APIView):
     def post(self, request, format=None):
-        serializer = ChatSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            if request.data['user_id']:
-                try:
-                    user = CustomUser.objects.get(id=request.data['user_id'])
-                    chat = serializer.save()
-                    chat.users.add(request.user, user)
-                    return Response({'id': serializer.data['id']}, status=status.HTTP_201_CREATED)
-                except CustomUser.DoesNotExist:
-                    return Response({'user_id': 'not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        if request.data['user_id']:
+            try:
+                user = CustomUser.objects.get(id=request.data['user_id'])
+                if user == request.user:
+                    return Response({'user_id': 'same user'}, status=status.HTTP_400_BAD_REQUEST)
+                if Chat.objects.filter(users=request.user).filter(users=user):
+                    return Response({'chat': 'chat exist'}, status=status.HTTP_400_BAD_REQUEST)
+                serializer = ChatSerializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                chat = serializer.save()
+                chat.users.add(request.user, user)
+                return Response({'id': serializer.data['id']}, status=status.HTTP_201_CREATED)
+            except CustomUser.DoesNotExist:
+                return Response({'user_id': 'not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChatRemove(APIView):
