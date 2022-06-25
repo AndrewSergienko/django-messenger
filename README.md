@@ -91,16 +91,12 @@ OK - HTTP 200
   - type;
   - friend
    {
-      - id
-      - last_login
-      - is_superuser
-      - first_name
-      - last_name
-      - is_active
-      - date_joined
-      - email
-      - username
-      - phone
+      - id;
+      - email;
+      - username;
+      - phone;
+      - first_name;
+      - last_name;
   }
   - last_message
   {
@@ -129,6 +125,7 @@ request params:
 response:
 OK - HTTP 200
 {
+  - id;
   - email;
   - username;
   - phone;
@@ -138,4 +135,21 @@ OK - HTTP 200
 
 ERROR - HTTP 404
 {"detail": "Not found."}
+```
+* Пошук юзера - GET `domen/api/users/search`
+```
+request params:
+- username
+
+response:
+OK - 200
+[{
+  - id;
+  - email;
+  - username;
+  - phone;
+  - first_name;
+  - last_name;
+}, ...]
+ERROR - 404
 ```
