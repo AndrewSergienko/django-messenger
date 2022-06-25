@@ -5,6 +5,8 @@ import Server from '../../services/server';
 import ChatSideBar from '../chatSideBar/chatSideBar';
 import Messages from '../messages';
 
+import LogoutImage from '../../assets/log-out.png';
+
 export default class Chat extends Component {
    server = new Server(); 
 
@@ -88,9 +90,19 @@ export default class Chat extends Component {
       })
    }
 
+   logout = () => {
+      localStorage.removeItem('authKey');
+      window.location.reload();
+   }
+
    render() {
       return (
          <>
+            <Header>
+               <LogoutBtn onClick={this.logout}>
+                  <img src={LogoutImage} alt='Logout' />
+               </LogoutBtn>
+            </Header>
             <ChatSideBar 
                chats={this.state.chats}
                userInfo={this.userInfo}
@@ -108,6 +120,25 @@ export default class Chat extends Component {
       )
    }
 }
+
+const Header = styled.section`
+   position: fixed;
+   width: 100%;
+   background: #fff;
+   border-bottom: 1px solid #cacaca;
+   text-align: end;
+`
+
+const LogoutBtn = styled.button`
+   margin: 20px;
+   background: transparent;
+   border: none;
+   transition: 0.2s;
+
+   &:hover {
+      transform: scale(110%);
+   }
+`
 
 const ChooseChat = styled.p`
    position: absolute;

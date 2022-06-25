@@ -41,6 +41,7 @@ export default class ChatSideBar extends Component {
 // Styled components
 const SideBar = styled.section`
    position: fixed;
+   margin-top: 3.8%;
    float: left;
    width: 25%;
    height: 100vh;
