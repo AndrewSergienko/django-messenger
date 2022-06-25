@@ -82,8 +82,9 @@ export default class Messages extends Component {
 
 // Styled components
 const Wrap = styled.section`
+   padding-top: 3.7%;
    margin-left: 27%;
-   margin-bottom: 25px;
+   margin-bottom: 75px;
 `
 
 const Message = styled.section`
@@ -91,6 +92,10 @@ const Message = styled.section`
    margin-right: 30px;
    padding: 25px 0;
    border-top: 1px solid #cacaca;
+
+   &:first-child {
+      border-top: none;
+   }
 `;
 
 const Avatar = styled.img`
