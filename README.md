@@ -75,9 +75,34 @@ request form data:
 
 response:
 OK - 201
+- id (ід чату)
 
 ERROR - 400
-{'user_id': 'not exist'}
+{'user_id': 'not exist'};
+{'user_id': 'same user'} - користувач намагається створити чат сам з собою;
+{'chat': 'chat exist'} - чат між двома користувачами вже існує;
+```
+`Після того, як був створений чат, потрібно сповістити про це іншого користувача за допомогою WebSocket`
+```
+user1 send:
+{
+  'type': 'create_chat',
+  'chat_id': ...
+}
+user2 get:
+{
+  'type': 'create_chat_event',
+  'chat_id': ...;
+  'chat_type': ...;
+  'friend': {
+      - id;
+      - email;
+      - username;
+      - phone;
+      - first_name;
+      - last_name;
+  }
+}
 ```
 * Отримати список чатів - GET `domen/api/chats/list`
 ```
