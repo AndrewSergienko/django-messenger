@@ -73,8 +73,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         receivers = await self.get_receivers_in_chat(chat)
         data = {
             'type': 'create_chat_event',
-            'chat_id': self.scope['chat_id']
+            'chat_id': self.scope['chat_id'],
+            'chat_type': chat.type,
         }
+        if chat.type == 'personal':
+            friend_id = receivers[0].id
+            data['friend'] = await self.get_user(friend_id, serialize=True)
         await self.send_to_receivers(receivers, data)
 
     async def send_user_active_status(self, status):
