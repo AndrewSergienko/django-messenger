@@ -30,16 +30,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         Метод викливається з клієнту користувача.
         """
         text_data_json = json.loads(text_data)
-        text_data_json['chat'] = await self.get_chat_by_id(text_data_json['chat'])
-        text_data_json['user'] = await self.get_user(self.scope['user_id'])
-        data_functions = {
-            'message': self.data_message,
-            'read': self.data_read_event,
-            'create_chat': self.data_create_chat_event,
-        }
-        data = await data_functions[text_data_json['type']](text_data_json)
-        receivers = await self.get_receivers_in_chat(text_data_json['chat'])
-        await self.send_to_receivers(receivers, data)
+        if text_data_json['type'] in ['create_chat_event']:
+            await self.send_create_chat_event(text_data_json)
+        else:
+            text_data_json['chat'] = await self.get_chat_by_id(text_data_json['chat'])
+            text_data_json['user'] = await self.get_user(self.scope['user_id'])
+            data_functions = {
+                'message': self.data_message,
+                'read_event': self.data_read_event,
+            }
+            data = await data_functions[text_data_json['type']](text_data_json)
+            receivers = await self.get_receivers_in_chat(text_data_json['chat'])
+            await self.send_to_receivers(receivers, data)
 
     """
     Data defs:
@@ -68,16 +70,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'user': self.scope['user_id']
         }
 
-    async def data_create_chat_event(self, data):
-        chat = await self.get_chat_by_id(self.scope['chat_id'])
+    async def send_create_chat_event(self, data):
+        chat = await self.get_chat_by_id(data['chat_id'])
         receivers = await self.get_receivers_in_chat(chat)
         data = {
             'type': 'create_chat_event',
-            'chat_id': self.scope['chat_id'],
+            'chat_id': data['chat_id'],
             'chat_type': chat.type,
         }
         if chat.type == 'personal':
-            friend_id = receivers[0].id
+            friend_id = receivers[0]
             data['friend'] = await self.get_user(friend_id, serialize=True)
         await self.send_to_receivers(receivers, data)
 
@@ -120,7 +122,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def user_active_status_event(self, event):
         await self.send(text_data=json.dumps(event))
 
-    async def chat_create_event(self, event):
+    async def create_chat_event(self, event):
         await self.send(text_data=json.dumps(event))
 
     # Django ORM не підтримує асинхронність, тому потрібно використовувати декоратори
