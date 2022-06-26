@@ -86,7 +86,7 @@ ERROR - 400
 ```
 user1 send:
 {
-  'type': 'create_chat',
+  'type': 'create_chat_event',
   'chat_id': ...
 }
 user2 get:
