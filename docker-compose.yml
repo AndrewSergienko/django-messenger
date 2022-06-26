@@ -31,7 +31,7 @@ services:
     user: root
 
   frontend:
-    image: sergienkoandrew/djangomessenger-front:3
+    image: sergienkoandrew/djangomessenger-front:5
     restart: always
     command: npm start
     container_name: front

@@ -7,7 +7,7 @@ import sendButton from '../../assets/send-button.png';
 import EmptyChat from '../emptyChat';
 
 export default class Messages extends Component {
-   chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${this.props.authToken}/`);
+   chatSocket = new WebSocket(`ws://142.93.235.128:8000/ws/chat/${this.props.authToken}/`);
 
    state = {
       message: '',
