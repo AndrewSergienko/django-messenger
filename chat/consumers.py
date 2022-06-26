@@ -34,7 +34,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json['user'] = await self.get_user(self.scope['user_id'])
         data_functions = {
             'message': self.data_message,
-            'read': self.data_read_event
+            'read': self.data_read_event,
+            'create_chat': self.data_create_chat_event,
         }
         data = await data_functions[text_data_json['type']](text_data_json)
         receivers = await self.get_receivers_in_chat(text_data_json['chat'])
@@ -66,6 +67,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'chat': data['chat'].id,
             'user': self.scope['user_id']
         }
+
+    async def data_create_chat_event(self, data):
+        chat = await self.get_chat_by_id(self.scope['chat_id'])
+        receivers = await self.get_receivers_in_chat(chat)
+        data = {
+            'type': 'create_chat_event',
+            'chat_id': self.scope['chat_id']
+        }
+        await self.send_to_receivers(receivers, data)
 
     async def send_user_active_status(self, status):
         """
