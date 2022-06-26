@@ -17,27 +17,42 @@ class ChatList(APIView):
                 friend_id = chat['users'][0] if chat['users'][1] == request.user.id else chat['users'][1]
                 friend_serializer = UserSeralizer(CustomUser.objects.get(id=friend_id))
                 chat['friend'] = friend_serializer.data
-                message_serializer = MessageSerializer(chats[i].messages.last())
-                chat['last_message'] = message_serializer.data
+                last_message = chats[i].messages.last()
+                if last_message:
+                    message_serializer = MessageSerializer(chats[i].messages.last())
+                    chat['last_message'] = message_serializer.data
+                else:
+                    chat['last_message'] = None
                 del chat['users']
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ChatCreate(APIView):
     def post(self, request, format=None):
-        serializer = ChatSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            if request.data['user_id']:
-                try:
-                    user = CustomUser.objects.get(id=request.data['user_id'])
-                    chat = serializer.save()
-                    chat.users.add(request.user, user)
-                    # TEMP SOLUTION
-                    message = Message(chat=chat, user=request.user, text="temp init")
-                    message.save()
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
-                except CustomUser.DoesNotExist:
-                    return Response({'user_id': 'not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        if request.data['user_id']:
+            try:
+                user = CustomUser.objects.get(id=request.data['user_id'])
+                if user == request.user:
+                    return Response({'user_id': 'same user'}, status=status.HTTP_400_BAD_REQUEST)
+                if Chat.objects.filter(users=request.user).filter(users=user):
+                    return Response({'chat': 'chat exist'}, status=status.HTTP_400_BAD_REQUEST)
+                serializer = ChatSerializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                chat = serializer.save()
+                chat.users.add(request.user, user)
+                return Response({'id': serializer.data['id']}, status=status.HTTP_201_CREATED)
+            except CustomUser.DoesNotExist:
+                return Response({'user_id': 'not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChatRemove(APIView):
+    def post(self, request, format=None):
+        chat = get_object_or_404(Chat, id=request.data['chat_id'])
+        if request.user in chat.users.all():
+            chat.delete()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response({'reason': 'has no right'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChatDetail(APIView):
@@ -65,7 +80,3 @@ class Messages(APIView):
 
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-def room(request):
-    return render(request, 'chat/room.html')
