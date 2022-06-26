@@ -55,35 +55,6 @@ export default class Login extends Component {
       }
    }
 
-   checkValidation = (errorsObject) => {
-      for (const [field, reason] of Object.entries(errorsObject)) {
-         switch (field) {
-            case 'email':
-               this.setState({labelColor: 'red'});
-               switch (reason[0]) {
-                  case 'not exist':
-                     this.setState({labelMessage: 'User with this email not exists'});
-                     break;
-                  default:
-                     break;
-               }
-               break;
-            case 'password':
-               this.setState({labelColor: 'red'});
-               switch (reason[0]) {
-                  case 'not correct':
-                     this.setState({labelMessage: 'Wrong password. Try entering the password again and try logging in again'});
-                     break;
-                  default:
-                     break;
-               }
-               break;
-            default:
-               break;
-         }
-      }
-   }
-
    // When form is submit
    submitForm = async (event) => {
       event.preventDefault();
@@ -114,7 +85,8 @@ export default class Login extends Component {
       return (
          <Form
             className='d-flex'
-            onSubmit={this.submitForm}>
+            onSubmit={this.submitForm}
+            autoComplete='off'>
             <h2>Sign in with your email</h2>
             <InfoMessage>Don't have an account?
                <RedirectSpan onClick={redirect}> Sign up</RedirectSpan>
