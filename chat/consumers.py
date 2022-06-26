@@ -116,6 +116,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def user_active_status_event(self, event):
         await self.send(text_data=json.dumps(event))
 
+    async def chat_create_event(self, event):
+        await self.send(text_data=json.dumps(event))
+
     # Django ORM не підтримує асинхронність, тому потрібно використовувати декоратори
     @database_sync_to_async
     def get_user_id_by_token(self, key):
