@@ -1,6 +1,6 @@
 export default class Server {
    constructor() {
-      this._apiBase = 'http://127.0.0.1:8000/api'
+      this._apiBase = 'http://142.93.235.128:8000/api'
    }
 
    async postResource(url, data) {
