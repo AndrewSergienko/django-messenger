@@ -10,6 +10,20 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
 
+def overwrite_errors_user_info(errors):
+    # Перезапис помилок валідацій на зручніші для API, які відбуваються на рівні полей
+    # Всі інші кастомні валідації відбуваються в UserSerializer.valiate()
+    for error in errors.detail.keys():
+        if error == 'password':
+            if errors.detail[error][0] == 'This field may not be blank.':
+                errors.detail[error][0] = 'no value'
+        elif error == 'username':
+            for i, message in enumerate(errors.detail[error]):
+                if message == 'user with this username already exists.':
+                    errors.detail[error][i] = 'user exist'
+    return errors
+
+
 class UserRegister(APIView):
     """Клас призначений для реєстрації користувача через POST-запит."""
 
@@ -23,17 +37,7 @@ class UserRegister(APIView):
                 EmailToken.objects.get(email=request.data['email']).delete()
                 return Response(status=status.HTTP_201_CREATED)
         except serializers.ValidationError as e:
-            # Перезапис помилок валідацій на зручніші для API, які відбуваються на рівні полей
-            # Всі інші кастомні валідації відбуваються в UserSerializer.valiate()
-            for error in e.detail.keys():
-                if error == 'password':
-                    if e.detail[error][0] == 'This field may not be blank.':
-                        e.detail[error][0] = 'no value'
-                elif error == 'username':
-                    for i, message in enumerate(e.detail[error]):
-                        if message == 'user with this username already exists.':
-                            e.detail[error][i] = 'user exist'
-            raise e
+            raise overwrite_errors_user_info(e)
 
 
 class CreateEmailToken(APIView):
@@ -88,6 +92,33 @@ class UserDetail(APIView):
             user = get_object_or_404(CustomUser, id=pk)
         serializer = UserSeralizer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserEdit(APIView):
+    def post(self, request, format=None):
+        allowed_fields_update = ['username', 'first_name', 'last_name', 'phone']
+        update_fields = []
+        user = request.user
+        for field in request.data.keys():
+            if field in allowed_fields_update:
+                user.__dict__[field] = request.data[field]
+                update_fields.append(field)
+        serializer = UserSeralizer(data=user.__dict__)
+        try:
+            serializer.is_valid(raise_exception=True)
+            user.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except serializers.ValidationError as e:
+            errors = overwrite_errors_user_info(e)
+            error_fields = list(errors.detail.keys())
+            for error in error_fields:
+                if error not in update_fields:
+                    del errors.detail[error]
+            if errors.detail:
+                raise errors
+            user.save()
+            serializer = UserSeralizer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserSearch(APIView):
