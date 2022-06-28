@@ -206,3 +206,13 @@ ERROR - HTTP 400
   first_name:
    - "no value" -> поле пусте;
 ```
+### WebSocket action
+* Online/Offline status
+```
+Ніяких повідомлень відправляти не потрібно. Буде приходить тільки повідомлення на фронт.
+{
+    "type": "user_active_status_event",
+    "user_id": ...,
+    "status": "online" OR "offline"
+}
+```
