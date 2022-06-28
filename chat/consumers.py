@@ -80,7 +80,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }
         if chat.type == 'personal':
             friend_id = receivers[0]
-            data['friend'] = await self.get_user(friend_id, serialize=True)
+            data['friend'] = friend_id
         await self.send_to_receivers(receivers, data)
 
     async def send_user_active_status(self, status):

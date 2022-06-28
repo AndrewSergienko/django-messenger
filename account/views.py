@@ -111,9 +111,6 @@ class UserDetail(APIView):
         result_data = serializer.data
         is_online = redis.get(str(user.id))
         result_data['active_status'] = "online" if is_online else "offline"
-        if user.avatar:
-            avatar_serializer = FileSerializer(user.avatar)
-            result_data['avatar'] = avatar_serializer.data
         return Response(result_data, status=status.HTTP_200_OK)
 
 
