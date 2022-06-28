@@ -9,7 +9,7 @@ import EmptyChat from '../emptyChat';
 export default class Messages extends Component {
    state = {
       message: ''
-   }
+   } 
 
    componentDidUpdate() {
       window.scroll({
@@ -20,34 +20,24 @@ export default class Messages extends Component {
    }
 
    onSubmit(event,  chatId) {
-      const { authToken, addNewMessageToChat, addNewMessageToSideBar, me } = this.props;
+      const { addNewMessageToChat, addNewMessageToSideBar, me } = this.props;
       event.preventDefault();
-      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
-      chatSocket.onopen = () => {
-         chatSocket.send(
-            JSON.stringify({
-               'type': 'message',
-               'chat': chatId,
-               'text': this.state.message
-            })
-         );
-         addNewMessageToChat(chatId, this.state.message, me.id);
-         addNewMessageToSideBar({chatId: chatId, text: this.state.message, date: new Date()});
-         this.setState({message: ''})
-      }
+      
+      this.props.chatSocket.send(
+         JSON.stringify({
+            'type': 'message',
+            'chat': chatId,
+            'text': this.state.message
+         })
+      );
+      
+      addNewMessageToChat(chatId, this.state.message, me.id);
+      addNewMessageToSideBar({chatId: chatId, text: this.state.message, date: new Date()});
+      this.setState({message: ''})
    }
 
    render() {
-      const { authToken, addNewMessageToChat, addNewMessageToSideBar, activeChat, messages, me, friend } = this.props;
-      const chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${authToken}/`);
-      
-      chatSocket.onmessage = (event) => {
-         const data = JSON.parse(event.data);
-         addNewMessageToSideBar(data);
-         if (data.message.chat === activeChat) {
-            addNewMessageToChat(data.message.chat, data.message.text, data.message.user.id);
-         }
-      }
+      const { activeChat, messages, me, friend } = this.props;
 
       return (
          <Wrap>
@@ -82,8 +72,9 @@ export default class Messages extends Component {
 
 // Styled components
 const Wrap = styled.section`
+   padding-top: 3.7%;
    margin-left: 27%;
-   margin-bottom: 25px;
+   margin-bottom: 75px;
 `
 
 const Message = styled.section`
@@ -91,10 +82,15 @@ const Message = styled.section`
    margin-right: 30px;
    padding: 25px 0;
    border-top: 1px solid #cacaca;
+
+   &:first-child {
+      border-top: none;
+   }
 `;
 
 const Avatar = styled.img`
    width: 48px;
+   height: 48px;
    margin-right: 20px;
    border-radius: 50%;
 `
