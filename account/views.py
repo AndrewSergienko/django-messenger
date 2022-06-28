@@ -9,6 +9,8 @@ from rest_framework import status, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from files.models import File
+from files.serializers import FileSerializer
 
 
 def overwrite_errors_user_info(errors):
@@ -39,6 +41,20 @@ class UserRegister(APIView):
             return Response(status=status.HTTP_201_CREATED)
         except serializers.ValidationError as e:
             raise overwrite_errors_user_info(e)
+
+
+class UserSetAvatar(APIView):
+    def post(self, request, format=None):
+        try:
+            user = request.user
+            avatar = File.objects.get(id=request.data['file_id'])
+            if 'image' not in avatar.type:
+                return Response({"file": "not is image"}, status=status.HTTP_400_BAD_REQUEST)
+            user.avatar = avatar
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        except File.DoesNotExist:
+            return Response({"file": "not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateEmailToken(APIView):
@@ -95,6 +111,9 @@ class UserDetail(APIView):
         result_data = serializer.data
         is_online = redis.get(str(user.id))
         result_data['active_status'] = "online" if is_online else "offline"
+        if user.avatar:
+            avatar_serializer = FileSerializer(user.avatar)
+            result_data['avatar'] = avatar_serializer.data
         return Response(result_data, status=status.HTTP_200_OK)
 
 

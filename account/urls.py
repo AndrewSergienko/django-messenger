@@ -9,5 +9,6 @@ urlpatterns = [
     path('verify_token', views.VerifyEmailToken.as_view()),
     path('search', views.UserSearch.as_view()),
     path('<str:pk>', views.UserDetail.as_view()),
-    path('me/edit', views.UserEdit.as_view())
+    path('me/edit', views.UserEdit.as_view()),
+    path('me/set_avatar', views.UserSetAvatar.as_view())
 ]
