@@ -32,10 +32,10 @@ class UserRegister(APIView):
     def post(self, request, format=None):
         serializer = UserSeralizer(data=request.data)
         try:
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                EmailToken.objects.get(email=request.data['email']).delete()
-                return Response(status=status.HTTP_201_CREATED)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            EmailToken.objects.get(email=request.data['email']).delete()
+            return Response(status=status.HTTP_201_CREATED)
         except serializers.ValidationError as e:
             raise overwrite_errors_user_info(e)
 
@@ -109,6 +109,7 @@ class UserEdit(APIView):
             user.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         except serializers.ValidationError as e:
+            e.detail.update(serializer.validate(serializer.data, return_errors=True))
             errors = overwrite_errors_user_info(e)
             error_fields = list(errors.detail.keys())
             for error in error_fields:
