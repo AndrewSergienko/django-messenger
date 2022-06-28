@@ -145,7 +145,7 @@ request params:
 - direction (up or down)(opt)(Напрямок загрузки повідомлень. up - cтаріші, down - новіші)
 ```
 ### User
-* Отримати інформацію про юзера - GET `domen/api/users/<id>` `domen/api/users/me` - інформація про поточного користувача
+* Отримати інформацію про юзера - GET `domen/api/users/<id>` `domen/api/users/me` - інформація про cебе
 ```
 response:
 OK - HTTP 200
@@ -177,4 +177,32 @@ OK - 200
   - last_name;
 }, ...]
 ERROR - 404
+```
+* Змінити інформацію про себе - POST `domen/api/users/me/edit`
+```
+request form data:
+- username;
+- first_name;
+- last_name;
+- phone;
+
+response:
+OK - HTTP 200
+{
+  - id;
+  - email;
+  - username;
+  - phone;
+  - first_name;
+  - last_name;
+}
+
+ERROR - HTTP 400
+  username:
+   - "no value" -> поле пусте;
+   - "short" -> довжина поля < 4 символа;
+   - "user exist" -> username вже зайнятий;
+  
+  first_name:
+   - "no value" -> поле пусте;
 ```
