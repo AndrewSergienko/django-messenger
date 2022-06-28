@@ -150,4 +150,8 @@ class UserSearch(APIView):
         if len(users) == 0:
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = UserSeralizer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        result_data = serializer.data
+        for user in result_data:
+            is_online = redis.get(str(user['id']))
+            user['active_status'] = "online" if is_online else "offline"
+        return Response(result_data, status=status.HTTP_200_OK)
