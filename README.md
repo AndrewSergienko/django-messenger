@@ -94,14 +94,7 @@ user2 get:
   'type': 'create_chat_event',
   'chat_id': ...;
   'chat_type': ...;
-  'friend': {
-      - id;
-      - email;
-      - username;
-      - phone;
-      - first_name;
-      - last_name;
-  }
+  'friend': id;
 }
 ```
 * Отримати список чатів - GET `domen/api/chats/list`
@@ -122,6 +115,15 @@ OK - HTTP 200
       - phone;
       - first_name;
       - last_name;
+      - last_login;
+      - active_status;
+      - avatar: null OR {
+        - id;
+        - file; (лінка на сам файл)
+        - data;
+        - type;
+        - message; (повідомленя, в якому послано, але на даний момент воно null) 
+      }
   }
   - last_message
   {
@@ -156,6 +158,15 @@ OK - HTTP 200
   - phone;
   - first_name;
   - last_name;
+  - last_login;
+      - active_status;
+      - avatar: null OR {
+        - id;
+        - file; (лінка на сам файл)
+        - data;
+        - type;
+        - message; (повідомленя, в якому послано, але на даний момент воно null) 
+      }
 }
 
 ERROR - HTTP 404
