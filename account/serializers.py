@@ -1,12 +1,15 @@
 from .models import CustomUser, EmailToken
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password, ValidationError
+from files.models import File
 
 
 class UserSeralizer(serializers.ModelSerializer):
+    avatar = serializers.PrimaryKeyRelatedField(queryset=File.objects.all())
+
     class Meta:
         model = CustomUser
-        fields = ['id', 'email', 'username', 'password', 'phone', 'first_name', 'last_name', 'last_login']
+        fields = ['id', 'email', 'username', 'password', 'phone', 'first_name', 'last_name', 'last_login', 'avatar']
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs, return_errors=False):

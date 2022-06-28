@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework.authtoken',
     'storages',
-    'files'
+    'files',
     'silk'
 ]
 
