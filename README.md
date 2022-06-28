@@ -217,6 +217,31 @@ ERROR - HTTP 400
   first_name:
    - "no value" -> поле пусте;
 ```
+### Files
+* Завантажити файл - POST `domen/api/files/upload`
+```
+request form data:
+- file (ОДИН);
+
+response:
+OK - HTTP 200:
+- id;
+- url; (лінка на сам файл)
+ERROR - HTTP 503 - Сервіс недоступний
+```
+* Отримати файл - POST `domen/api/files/<id>`
+```
+response:
+OK - HTTP 200
+{
+ - id;
+ - file; (лінка на файл)
+ - data;
+ - type; (тип файлу)
+ - message: null; (поки що не потрібний)
+}
+ERROR - HTTP 404;
+```
 ### WebSocket action
 * Online/Offline status
 ```
