@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Filestorage</title>
+</head>
+<body>
+    <input id="file-input" type="file">
+    <button onclick="send_file()">Send</button>
+</body>
+<script>
+    async function send_file(){
+        let files = document.getElementById("file-input").files
+        let data = new FormData()
+        data.append('file', files[0])
+        await fetch("http://127.0.0.1:8000/api/files/upload", {
+            method: 'POST',
+            headers:{
+                authorization: 'Token de48d436b1a4593f9001d62f4fa1caefb6d3fa56'
+            },
+            body: data
+        })
+    }
+</script>
+</html>

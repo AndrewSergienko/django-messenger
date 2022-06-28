@@ -86,26 +86,32 @@ request headers:
 
 reposnse:
 OK - HTTP 200
-- id;
-- type;
-- friend:
-  - id
-  - last_login
-  - is_superuser
-  - first_name
-  - last_name
-  - is_active
-  - date_joined
-  - email
-  - username
-  - phone
-- last_message:
-  - id
-  - text
-  - date
-  - chat
-  - user
-  - read
+{
+  - id;
+  - type;
+  - friend
+   {
+      - id
+      - last_login
+      - is_superuser
+      - first_name
+      - last_name
+      - is_active
+      - date_joined
+      - email
+      - username
+      - phone
+  }
+  - last_message
+  {
+      - id
+      - text
+      - date
+      - chat
+      - user
+      - read
+  }
+}
 ```
 * Отримати список повідомлень чату - GET `domen/api/chats/<chat_id>/messages`
 ```
@@ -116,4 +122,20 @@ request params:
 - messages_num (Кількість повідомлень, які потрібно отримати)
 - message_id (opt)(ід крайнього повідомлення, від якого будуть взяті інші повідомлення. Якщо не вказане - беруться перші message_num повідомлень)
 - direction (up or down)(opt)(Напрямок загрузки повідомлень. up - cтаріші, down - новіші)
+```
+### User
+* Отримати інформацію про юзера - GET `domen/api/users/<id>` `domen/api/users/me` - інформація про поточного користувача
+```
+response:
+OK - HTTP 200
+{
+  - email;
+  - username;
+  - phone;
+  - first_name;
+  - last_name;
+}
+
+ERROR - HTTP 404
+{"detail": "Not found."}
 ```
