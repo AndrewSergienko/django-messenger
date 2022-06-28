@@ -6,7 +6,7 @@ from django.contrib.auth.password_validation import validate_password, Validatio
 class UserSeralizer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        exclude = ['is_staff', 'groups', 'user_permissions']
+        fields = ['id', 'email', 'username', 'password', 'phone', 'first_name', 'last_name', 'last_login']
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs, return_errors=False):
@@ -61,12 +61,15 @@ class UserSeralizer(serializers.ModelSerializer):
                 return [errors_dict[error] for error in e]
 
     def save(self, **kwargs):
+        # по дефолту is_active == False
         self.validated_data['is_active'] = True
         cleaned_data_keys = ['email', 'username', 'first_name', 'last_name', 'is_active']
         cleaned_data = {}
         for key in cleaned_data_keys:
             if key in self.validated_data:
                 cleaned_data[key] = self.validated_data[key]
+
+        cleaned_data['username'] = cleaned_data['username'].lower()
 
         user = CustomUser(**cleaned_data)
         user.set_password(self.validated_data['password'])

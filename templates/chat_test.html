@@ -50,6 +50,7 @@
 
             chatSocket.onmessage = function (e) {
                 const data = JSON.parse(e.data);
+                console.log(data)
                 if(data.type === "message"){
                     if(data.message.chat === target_chat){
                         document.querySelector('#chat-log').value += (data.message.text + '\n');

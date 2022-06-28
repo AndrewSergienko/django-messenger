@@ -29,9 +29,11 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'storages',
     'files'
+    'silk'
 ]
 
 MIDDLEWARE = [
+    'silk.middleware.SilkyMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -167,5 +169,5 @@ REST_FRAMEWORK = {
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
