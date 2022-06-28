@@ -6,6 +6,7 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from app.redis import redis
 
 
 class ChatList(APIView):
@@ -15,14 +16,13 @@ class ChatList(APIView):
         for i, chat in enumerate(serializer.data):
             if chat['type'] == 'personal':
                 friend_id = chat['users'][0] if chat['users'][1] == request.user.id else chat['users'][1]
-                friend_serializer = UserSeralizer(CustomUser.objects.get(id=friend_id))
+                friend = CustomUser.objects.get(id=friend_id)
+                friend_serializer = UserSeralizer(friend)
                 chat['friend'] = friend_serializer.data
-                last_message = chats[i].messages.last()
-                if last_message:
-                    message_serializer = MessageSerializer(chats[i].messages.last())
-                    chat['last_message'] = message_serializer.data
-                else:
-                    chat['last_message'] = None
+                is_online = redis.get(str(friend.id))
+                chat['friend']['online_status'] = "online" if is_online else "offline"
+                message_serializer = MessageSerializer(chats[i].messages.last())
+                chat['last_message'] = message_serializer.data
                 del chat['users']
         return Response(serializer.data, status=status.HTTP_200_OK)
 
