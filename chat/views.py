@@ -2,8 +2,7 @@ from account.serializers import UserSeralizer
 from .serializers import ChatSerializer, MessageSerializer
 from .models import Chat, Message
 from account.models import CustomUser
-from files.serializers import FileSerializer
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -22,10 +21,6 @@ class ChatList(APIView):
                 chat['friend'] = friend_serializer.data
                 is_online = redis.get(str(friend.id))
                 chat['friend']['active_status'] = "online" if is_online else "offline"
-                if friend.avatar:
-                    avatar_serializer = FileSerializer(friend.avatar)
-                    chat['friend']['avatar'] = avatar_serializer.data
-
                 message_serializer = MessageSerializer(chats[i].messages.last())
                 chat['last_message'] = message_serializer.data
                 del chat['users']
