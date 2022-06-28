@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
+import { ToastContainer, toast } from 'react-toastify';
 import Server from '../../services/server';
 
 import ChatSideBar from '../chatSideBar/chatSideBar';
@@ -6,8 +8,10 @@ import Messages from '../messages';
 
 import LogoutImage from '../../assets/log-out.png';
 
+import 'react-toastify/dist/ReactToastify.css';
 export default class Chat extends Component {
    server = new Server(); 
+   chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${this.props.authToken}/`);
 
    state = {
       chats: [],
@@ -94,7 +98,28 @@ export default class Chat extends Component {
       window.location.reload();
    }
 
+   notify = (data) => data.message && toast.info(
+      <>
+         <NotifyTitle>{data.message.user.first_name} {data.message.user.last_name}</NotifyTitle>
+         <NotifyText>{data.message.text}</NotifyText>
+      </>, {
+      position: "top-right",
+      autoClose: 5000,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+   });
+
    render() {
+      this.chatSocket.onmessage = (event) => {
+         const data = JSON.parse(event.data);
+         data && this.notify(data) && this.addNewMessageToSideBar(data);
+         if (data.message && data.message.chat === this.state.activeChat) {
+            this.addNewMessageToChat(data.message.chat, data.message.text, data.message.user.id);
+         }
+      }
+      
       return (
          <>
             <Header>
@@ -102,20 +127,88 @@ export default class Chat extends Component {
                   <img src={LogoutImage} alt='Logout' />
                </LogoutBtn>
             </Header>
-            <ChatSideBar
+            <ChatSideBar 
                chats={this.state.chats}
                userInfo={this.userInfo}
                chatMessages={this.chatMessages}
                setActiveChat={this.setActiveChat}/>
-            { this.state.activeChat ? <Messages
+            { this.state.activeChat ? <Messages 
                authToken={this.props.authToken} 
                messages={this.state.messages} 
                me={this.state.me} 
                friend={this.state.friend} 
                activeChat={this.state.activeChat}
                addNewMessageToChat={this.addNewMessageToChat}
-               addNewMessageToSideBar={this.addNewMessageToSideBar}/>
+               addNewMessageToSideBar={this.addNewMessageToSideBar}
+               notify={this.notify}
+               chatSocket={this.chatSocket}/> : <ChooseChat>Select a chat to start a messaging</ChooseChat>}
+            <StyledNotify
+               position="top-right"
+               autoClose={5000}
+               newestOnTop
+               closeOnClick
+               rtl={false}
+               pauseOnFocusLoss
+               draggable
+               pauseOnHover
+            />
          </>
       )
    }
 }
+
+const Header = styled.section`
+   position: fixed;
+   width: 100%;
+   background: #fff;
+   border-bottom: 1px solid #cacaca;
+   text-align: end;
+`
+
+const LogoutBtn = styled.button`
+   margin: 20px;
+   background: transparent;
+   border: none;
+   transition: 0.2s;
+
+   &:hover {
+      transform: scale(110%);
+   }
+`
+
+const ChooseChat = styled.p`
+   position: absolute;
+   top: 50%;
+   width: 100%;
+   padding-left: 27%;
+
+   font-size: 20px;
+   text-align: center;
+`
+
+const StyledNotify = styled(ToastContainer)`
+   .Toastify__progress-bar {
+      height: 2px;
+      background: #0D6EFD;
+   }
+   .Toastify__toast-icon {
+      display: none;
+   }
+`
+
+const NotifyTitle = styled.h4`
+   width: 290px;
+   margin: 0;
+   color: #000;
+   font-size: 16px;
+   font-weight: bold;
+`
+
+const NotifyText = styled.p`
+   width: 290px;
+   margin: 10px 0 0 0;
+   font-size: 14px;
+   overflow: hidden;
+   white-space: nowrap;
+   text-overflow: ellipsis;
+`
