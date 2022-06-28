@@ -1,4 +1,5 @@
 import random
+from app.redis import redis
 from .models import CustomUser, EmailToken
 from .serializers import UserSeralizer, EmailTokenSerializer
 from .tasks import task_send_mail
@@ -91,7 +92,10 @@ class UserDetail(APIView):
         else:
             user = get_object_or_404(CustomUser, id=pk)
         serializer = UserSeralizer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        result_data = serializer.data
+        is_online = redis.get(str(user.id))
+        result_data['active_status'] = "online" if is_online else "offline"
+        return Response(result_data, status=status.HTTP_200_OK)
 
 
 class UserEdit(APIView):
