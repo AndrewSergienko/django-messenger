@@ -217,6 +217,18 @@ ERROR - HTTP 400
   first_name:
    - "no value" -> поле пусте;
 ```
+`Призначити собі аватарку` - POST `domen/api/users/me/set_avatar`
+```
+request form data:
+file_id;
+
+response:
+OK - HTTP 200
+ERROR - HTTP 400
+- {"file": "not is image"}
+HTTP - 404
+- {"file": "not exist"}
+```
 ### Files
 * Завантажити файл - POST `domen/api/files/upload`
 ```
