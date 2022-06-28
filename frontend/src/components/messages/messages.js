@@ -7,19 +7,9 @@ import sendButton from '../../assets/send-button.png';
 import EmptyChat from '../emptyChat';
 
 export default class Messages extends Component {
-   chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${this.props.authToken}/`);
-
    state = {
-      message: '',
-      chatSocket: ''
-   }
-
-   componentDidMount() {
-      this.chatSocket.onopen = () => {
-         console.log('WebSocket is connected');
-      }
-   }
-   
+      message: ''
+   } 
 
    componentDidUpdate() {
       window.scroll({
@@ -33,7 +23,7 @@ export default class Messages extends Component {
       const { addNewMessageToChat, addNewMessageToSideBar, me } = this.props;
       event.preventDefault();
       
-      this.chatSocket.send(
+      this.props.chatSocket.send(
          JSON.stringify({
             'type': 'message',
             'chat': chatId,
@@ -47,15 +37,7 @@ export default class Messages extends Component {
    }
 
    render() {
-      const { addNewMessageToChat, addNewMessageToSideBar, activeChat, messages, me, friend } = this.props;
-      
-      this.chatSocket.onmessage = (event) => {
-         const data = JSON.parse(event.data);
-         addNewMessageToSideBar(data);
-         if (data.message.chat === activeChat) {
-            addNewMessageToChat(data.message.chat, data.message.text, data.message.user.id);
-         }
-      }
+      const { activeChat, messages, me, friend } = this.props;
 
       return (
          <Wrap>
@@ -108,6 +90,7 @@ const Message = styled.section`
 
 const Avatar = styled.img`
    width: 48px;
+   height: 48px;
    margin-right: 20px;
    border-radius: 50%;
 `
