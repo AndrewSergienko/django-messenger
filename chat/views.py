@@ -21,7 +21,7 @@ class ChatList(APIView):
                 friend_serializer = UserSeralizer(friend)
                 chat['friend'] = friend_serializer.data
                 is_online = redis.get(str(friend.id))
-                chat['friend']['online_status'] = "online" if is_online else "offline"
+                chat['friend']['active_status'] = "online" if is_online else "offline"
                 if friend.avatar:
                     avatar_serializer = FileSerializer(friend.avatar)
                     chat['friend']['avatar'] = avatar_serializer.data
