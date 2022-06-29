@@ -76,7 +76,7 @@ class Messages(APIView):
             elif direction == 'down':
                 messages = chat.messages.filter(id__gt=message.id).order_by('-id')[:messages_num]
         else:
-            messages = chat.messages.order_by('id')
+            messages = chat.messages.order_by('id')[:messages_num]
 
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
