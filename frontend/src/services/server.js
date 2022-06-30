@@ -71,4 +71,13 @@ export default class Server {
 		const data = { first_name, last_name };
 		return this.postResource("/users/me/edit", data, token).then(user => user.json());
 	};
+
+	// Search
+	searchUsers = (username, token) => {
+		return this.getResource(`/users/search?username=${username}`, { Authorization: `Token ${token}` }).then(users => users.json());
+	};
+
+	createChat = (data, token) => {
+		return this.postResource("/chats/create", data, token).then(chatId => chatId.json());
+	};
 }
