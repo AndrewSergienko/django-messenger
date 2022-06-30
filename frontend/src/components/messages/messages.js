@@ -1,15 +1,23 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import Modal from 'react-modal';
 
 import defaultAvatar from '../../assets/default-avatar.png';
 import sendButton from '../../assets/send-button.png';
 
 import EmptyChat from '../emptyChat';
+import Profile from '../profile/profile';
 
 export default class Messages extends Component {
    state = {
-      message: ''
+      message: '',
+      modalIsOpen: false,
+      userId: 0
    } 
+
+   componentDidMount() {
+      Modal.setAppElement('body');
+   }
 
    componentDidUpdate() {
       window.scroll({
@@ -36,6 +44,14 @@ export default class Messages extends Component {
       this.setState({message: ''})
    }
 
+   openModal = () => {
+      this.setState({modalIsOpen: true})
+   }
+
+   closeModal = () => {
+      this.setState({modalIsOpen: false})
+   }
+
    render() {
       const { activeChat, messages, me, friend } = this.props;
 
@@ -43,7 +59,7 @@ export default class Messages extends Component {
          <Wrap>
             {messages.length ? messages.map((message, index) => {
                return <Message key={index}>
-                  <Avatar src={defaultAvatar} alt='Avatar'/>
+                  <Avatar src={defaultAvatar} alt='Avatar' onClick={() => {this.openModal(); this.setState({userId: message.user});}}/>
                   <section>
                      <Username>{friend.id === message.user ? `${friend.first_name} ${friend.last_name}` : `${me.first_name} ${me.last_name}`}</Username>
                      <Time>{new Date(message.date).toLocaleString('en-US', {month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false})}</Time>
@@ -64,6 +80,7 @@ export default class Messages extends Component {
                   <img src={sendButton} alt='Send'/>
                </Send>
             </form> : ''}
+            <Profile isOpen={this.state.modalIsOpen} info={this.state.userId === me.id ? me : friend} closeModal={this.closeModal}/>
          </Wrap>
       )
    }
@@ -93,6 +110,7 @@ const Avatar = styled.img`
    height: 48px;
    margin-right: 20px;
    border-radius: 50%;
+   cursor: pointer;
 `
 
 const Username = styled.span`

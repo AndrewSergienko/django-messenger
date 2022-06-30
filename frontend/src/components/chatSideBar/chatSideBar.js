@@ -24,7 +24,7 @@ export default class ChatSideBar extends Component {
                   }
 
                   const { id, first_name, last_name } = chat.friend;
-                  return <Message key={chat.id} onClick={() => {this.props.chatMessages(chat.id, 50, id, first_name, last_name); this.props.userInfo(); this.props.setActiveChat(chat.id)}}>
+                  return <Message key={chat.id} onClick={() => {this.props.chatMessages(chat.id, 25); this.props.userInfo(id); this.props.setActiveChat(chat.id)}}>
                      <Avatar src={defaultAvatar} alt='avatar' />
                      <Username>{first_name} {last_name ? last_name : ''}</Username>
                      <MessageText>{text}</MessageText>
