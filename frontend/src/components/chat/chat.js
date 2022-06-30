@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import Server from '../../services/server';
 
 import ChatSideBar from '../chatSideBar/chatSideBar';
@@ -8,7 +10,6 @@ import Messages from '../messages';
 
 import LogoutImage from '../../assets/log-out.png';
 
-import 'react-toastify/dist/ReactToastify.css';
 export default class Chat extends Component {
    server = new Server(); 
    chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${this.props.authToken}/`);
@@ -17,35 +18,21 @@ export default class Chat extends Component {
       chats: [],
       activeChat: 0,
       messages: [],
-      me: {
-         id: '',
-         first_name: '',
-         last_name: ''
-      },
-      friend: {
-         id: '',
-         first_name: '',
-         last_name: ''
-      }
+      me: {},
+      friend: {}
    }
 
    componentDidMount() {
       const {chatList, authToken} = this.props;
+      this.userInfo('me');
       chatList(authToken).then(response => {
          this.setState({chats: response});
       })
    }
 
-   chatMessages = async (chatId, messagesCount, id, first_name, last_name) => {
+   chatMessages = async (chatId, messagesCount) => {
       const result = await this.server.getChatMessages(this.props.authToken, chatId, messagesCount);
-      this.setState({
-         messages: result,
-         friend: {
-            id,
-            first_name,
-            last_name: last_name ? last_name : ''
-         }
-      })
+      this.setState({messages: result.reverse()})
    }
 
    addNewMessageToChat = (chatId, text, senderId) => {
@@ -82,15 +69,13 @@ export default class Chat extends Component {
       this.setState({activeChat: chatId})
    }
 
-   userInfo = async () => {
-      const result = await this.server.getUserInfo(this.props.authToken);
-      this.setState({
-         me: {
-            id: result.id,
-            first_name: result.first_name,
-            last_name: result.last_name ? result.last_name : ''
-         }
-      })
+   userInfo = async (id) => {
+      const result = await this.server.getUserInfo(this.props.authToken, id);
+      if (id === 'me') {
+         this.setState({me: result});
+      } else {
+         this.setState({friend: result});
+      }
    }
 
    logout = () => {
@@ -98,7 +83,7 @@ export default class Chat extends Component {
       window.location.reload();
    }
 
-   notify = (data) => data.message && toast.info(
+   messageNotify = (data) => data.message && toast.info(
       <>
          <NotifyTitle>{data.message.user.first_name} {data.message.user.last_name}</NotifyTitle>
          <NotifyText>{data.message.text}</NotifyText>
@@ -111,10 +96,20 @@ export default class Chat extends Component {
       progress: undefined,
    });
 
+   chatCreatedNotify = (data) => data.message && toast.info(
+   <NotifyTitle>{data.message.user.first_name} {data.message.user.last_name} was created chat with you.</NotifyTitle>, {
+      position: "top-right",
+      autoClose: 5000,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+   });
+
    render() {
       this.chatSocket.onmessage = (event) => {
          const data = JSON.parse(event.data);
-         data && this.notify(data) && this.addNewMessageToSideBar(data);
+         data && this.messageNotify(data) && this.addNewMessageToSideBar(data);
          if (data.message && data.message.chat === this.state.activeChat) {
             this.addNewMessageToChat(data.message.chat, data.message.text, data.message.user.id);
          }
@@ -140,7 +135,7 @@ export default class Chat extends Component {
                activeChat={this.state.activeChat}
                addNewMessageToChat={this.addNewMessageToChat}
                addNewMessageToSideBar={this.addNewMessageToSideBar}
-               notify={this.notify}
+               notify={this.chatCreatedNotify}
                chatSocket={this.chatSocket}/> : <ChooseChat>Select a chat to start a messaging</ChooseChat>}
             <StyledNotify
                position="top-right"

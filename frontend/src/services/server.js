@@ -56,15 +56,15 @@ export default class Server {
                .then(chats => chats.json())
    }
 
-   getChatMessages = (token, chatId, messagesCount) => {
+   getChatMessages = (token, chatId, messagesCount = 25) => {
       return this
          .getResource(`/chats/${chatId}/messages?messages_num=${messagesCount}`, {'Authorization': `Token ${token}`})
          .then(chats => chats.json())
    }
 
-   getUserInfo = (token) => {
+   getUserInfo = (token, id) => {
       return this
-         .getResource(`/users/me`, {'Authorization': `Token ${token}`})
+         .getResource(`/users/${id}`, {'Authorization': `Token ${token}`})
          .then(chats => chats.json())
    }
 }
