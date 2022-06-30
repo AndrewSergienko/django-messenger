@@ -54,7 +54,6 @@ export default class Messages extends Component {
 
 	render() {
 		const { activeChat, messages, me, friend, changeUserInfo } = this.props;
-
 		return (
 			<Wrap>
 				{messages.length ? (
@@ -62,7 +61,15 @@ export default class Messages extends Component {
 						return (
 							<Message key={index}>
 								<Avatar
-									src={defaultAvatar}
+									src={
+										friend.id === message.user
+											? friend.avatar
+												? friend.avatar.file
+												: defaultAvatar
+											: me.avatar
+											? me.avatar.file
+											: defaultAvatar
+									}
 									alt="Avatar"
 									onClick={() => {
 										this.openModal();
@@ -114,6 +121,7 @@ export default class Messages extends Component {
 					info={this.state.userId === me.id ? me : friend}
 					closeModal={this.closeModal}
 					changeUserInfo={changeUserInfo}
+					authToken={this.props.authToken}
 				/>
 			</Wrap>
 		);
