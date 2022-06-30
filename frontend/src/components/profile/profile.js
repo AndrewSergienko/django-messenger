@@ -43,9 +43,32 @@ export default class Profile extends Component {
 		});
 	};
 
+	changeAvatar = async event => {
+		const data = new FormData();
+		data.append("file", event.target.files[0]);
+		fetch("http://127.0.0.1:8000/api/files/upload", {
+			method: "POST",
+			headers: {
+				authorization: `Token ${this.props.authToken}`,
+			},
+			body: data,
+		})
+			.then(response => response.json())
+			.then(file => {
+				const data = new FormData();
+				data.append("file_id", file.id);
+				fetch("http://127.0.0.1:8000/api/users/me/set_avatar", {
+					method: "POST",
+					headers: {
+						authorization: `Token ${this.props.authToken}`,
+					},
+					body: data,
+				});
+			});
+	};
+
 	render() {
 		const { userId, isOpen, info, closeModal } = this.props;
-
 		isOpen ? (document.body.style.overflow = "hidden") : (document.body.style.overflow = "unset");
 
 		return (
@@ -57,40 +80,52 @@ export default class Profile extends Component {
 				}}>
 				<Title>User info</Title>
 				<Upper>
-					<Avatar src={info.avatar === null ? defaultAvatar : ""} alt="Avatar" />
-					<Info>
-						{!this.state.changeMode ? (
-							<FullName>
-								{info.first_name} {info.last_name}
-								{userId === info.id ? <Edit src={editBtn} alt="Edit" onClick={this.switchMode} /> : ""}
-							</FullName>
-						) : (
-							<ChangeMode onSubmit={event => this.submitForm(event)}>
-								<Input
-									id="first-name-input"
-									className="form-control"
-									type="text"
-									placeholder="First name"
-									value={this.state.first_name}
-									onChange={this.changeInput}
-									required
-								/>
-								<Input
-									id="last-name-input"
-									className="form-control"
-									type="text"
-									placeholder="Second name"
-									value={this.state.last_name}
-									onChange={this.changeInput}
-								/>
-								<Submit className="btn btn-primary" type="submit">
-									Save
-								</Submit>
-								<Close onClick={this.switchMode}>x</Close>
-							</ChangeMode>
-						)}
-						<Status>{info.active_status ? info.active_status : "online"}</Status>
-					</Info>
+					{!this.state.changeMode ? (
+						<>
+							<Avatar src={info.avatar ? info.avatar.file : defaultAvatar} alt="Avatar" />
+							<Info>
+								<FullName>
+									{info.first_name} {info.last_name}
+									{userId === info.id ? <Edit src={editBtn} alt="Edit" onClick={this.switchMode} /> : ""}
+								</FullName>
+								<Status>{info.active_status ? info.active_status : "online"}</Status>
+							</Info>
+						</>
+					) : (
+						<>
+							<ImgLabel htmlFor="file-input">
+								<Avatar src={info.avatar ? info.avatar.file : defaultAvatar} alt="Avatar" />
+								<small>Click to change</small>
+								<FileInput id="file-input" type="file" accept=".png, .jpg, .jpeg" onChange={event => this.changeAvatar(event)} />
+							</ImgLabel>
+							<Info>
+								<ChangeMode onSubmit={event => this.submitForm(event)}>
+									<Input
+										id="first-name-input"
+										className="form-control"
+										type="text"
+										placeholder="First name"
+										value={this.state.first_name}
+										onChange={this.changeInput}
+										required
+									/>
+									<Input
+										id="last-name-input"
+										className="form-control"
+										type="text"
+										placeholder="Second name"
+										value={this.state.last_name}
+										onChange={this.changeInput}
+									/>
+									<Submit className="btn btn-primary" type="submit">
+										Save
+									</Submit>
+									<Close onClick={this.switchMode}>x</Close>
+								</ChangeMode>
+								<Status>{info.active_status ? info.active_status : "online"}</Status>
+							</Info>
+						</>
+					)}
 				</Upper>
 				<Bottom>
 					{info.phone ? (
@@ -223,4 +258,14 @@ const Close = styled.button`
 	margin-left: 5px;
 	background: none;
 	border: none;
+`;
+
+const FileInput = styled.input`
+	display: none;
+`;
+
+const ImgLabel = styled.label`
+	width: 64px;
+	margin-right: 20px;
+	border-radius: 100px;
 `;
