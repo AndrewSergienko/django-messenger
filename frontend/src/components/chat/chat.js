@@ -15,6 +15,7 @@ export default class Chat extends Component {
 	chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${this.props.authToken}/`);
 
 	state = {
+		username: "",
 		chats: [],
 		activeChat: 0,
 		messages: [],
@@ -123,6 +124,13 @@ export default class Chat extends Component {
 		this.setState({ me: result });
 	};
 
+	searchUsers = async event => {
+		event.preventDefault();
+		this.setState({ username: "" });
+		const user = await this.server.searchUsers(this.state.username, this.props.authToken);
+		console.log(user);
+	};
+
 	render() {
 		this.chatSocket.onmessage = event => {
 			const data = JSON.parse(event.data);
@@ -135,6 +143,15 @@ export default class Chat extends Component {
 		return (
 			<>
 				<Header>
+					<SearchForm onSubmit={event => this.searchUsers(event)}>
+						<Search
+							type="text"
+							placeholder="Enter username..."
+							value={this.state.username}
+							onChange={event => this.setState({ username: event.target.value })}
+							borderColor={"#cacaca"}
+						/>
+					</SearchForm>
 					<LogoutBtn onClick={this.logout}>
 						<img src={LogoutImage} alt="Logout" />
 					</LogoutBtn>
@@ -168,6 +185,22 @@ const Header = styled.section`
 	background: #fff;
 	border-bottom: 1px solid #cacaca;
 	text-align: end;
+`;
+
+const SearchForm = styled.form`
+	display: inline-block;
+	width: 400px;
+	margin-right: 32%;
+`;
+
+const Search = styled.input`
+	width: 400px;
+	padding: 5px;
+	border: 1px solid ${props => props.borderColor};
+
+	&:focus {
+		outline: none;
+	}
 `;
 
 const LogoutBtn = styled.button`
