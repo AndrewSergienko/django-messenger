@@ -5,7 +5,7 @@ from files.serializers import FileSerializer
 
 
 class UserSeralizer(serializers.ModelSerializer):
-    avatar = FileSerializer()
+    avatar = FileSerializer(allow_null=True, default=None)
 
     class Meta:
         model = CustomUser
