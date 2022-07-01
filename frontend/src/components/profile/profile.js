@@ -10,9 +10,11 @@ export default class Profile extends Component {
 		changeMode: false,
 		first_name: "",
 		last_name: "",
+		avatar: "",
 	};
 
 	switchMode = () => {
+		this.setState({ first_name: this.props.info.first_name, last_name: this.props.info.last_name });
 		this.setState({ changeMode: !this.state.changeMode });
 	};
 
@@ -57,6 +59,7 @@ export default class Profile extends Component {
 			.then(file => {
 				const data = new FormData();
 				data.append("file_id", file.id);
+				this.setState({ avatar: file.url });
 				fetch("http://127.0.0.1:8000/api/users/me/set_avatar", {
 					method: "POST",
 					headers: {
@@ -94,8 +97,7 @@ export default class Profile extends Component {
 					) : (
 						<>
 							<ImgLabel htmlFor="file-input">
-								<Avatar src={info.avatar ? info.avatar.file : defaultAvatar} alt="Avatar" />
-								<small>Click to change</small>
+								<Avatar src={this.state.avatar ? this.state.avatar : info.avatar ? info.avatar.file : defaultAvatar} alt="Avatar" />
 								<FileInput id="file-input" type="file" accept=".png, .jpg, .jpeg" onChange={event => this.changeAvatar(event)} />
 							</ImgLabel>
 							<Info>
@@ -117,12 +119,12 @@ export default class Profile extends Component {
 										value={this.state.last_name}
 										onChange={this.changeInput}
 									/>
+									<ClickOnAvatar>Click on the image to change</ClickOnAvatar>
 									<Submit className="btn btn-primary" type="submit">
 										Save
 									</Submit>
 									<Close onClick={this.switchMode}>x</Close>
 								</ChangeMode>
-								<Status>{info.active_status ? info.active_status : "online"}</Status>
 							</Info>
 						</>
 					)}
@@ -185,6 +187,13 @@ const Avatar = styled.img`
 	width: 64px;
 	height: 64px;
 	border-radius: 100px;
+`;
+
+const ClickOnAvatar = styled.small`
+	position: absolute;
+	left: 104px;
+	top: 120px;
+	font-size: 12px;
 `;
 
 const Info = styled.section`
@@ -268,4 +277,5 @@ const ImgLabel = styled.label`
 	width: 64px;
 	margin-right: 20px;
 	border-radius: 100px;
+	cursor: pointer;
 `;
