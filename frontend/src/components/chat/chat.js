@@ -9,6 +9,7 @@ import ChatSideBar from "../chatSideBar/chatSideBar";
 import Messages from "../messages";
 
 import LogoutImage from "../../assets/log-out.png";
+import defaultAvatar from "../../assets/default-avatar.png";
 
 export default class Chat extends Component {
 	server = new Server();
@@ -144,7 +145,7 @@ export default class Chat extends Component {
 			<>
 				<Header>
 					<section>
-						<UserImg src={this.state.me.avatar ? this.state.me.avatar.file : ""} alt="Avatar" />
+						<UserImg src={this.state.me.avatar ? this.state.me.avatar.file : defaultAvatar} alt="Avatar" />
 						<UserName>
 							{this.state.me.first_name} {this.state.me.last_name}
 						</UserName>
