@@ -163,6 +163,7 @@ const Username = styled.span`
 const MessageText = styled.span`
 	width: 100%;
 	font-size: 14px;
+	overflow-wrap: anywhere;
 `;
 
 const Time = styled.span`
