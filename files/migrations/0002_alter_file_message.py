@@ -6,11 +6,6 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('chat', '0002_message_read'),
-        ('files', '0001_initial'),
-    ]
-
     operations = [
         migrations.AlterField(
             model_name='file',

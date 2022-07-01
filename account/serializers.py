@@ -1,11 +1,11 @@
 from .models import CustomUser, EmailToken
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password, ValidationError
-from files.models import File
+from files.serializers import FileSerializer
 
 
 class UserSeralizer(serializers.ModelSerializer):
-    avatar = serializers.PrimaryKeyRelatedField(queryset=File.objects.all())
+    avatar = FileSerializer(allow_null=True, default=None)
 
     class Meta:
         model = CustomUser

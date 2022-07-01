@@ -23,7 +23,6 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.sessions',
     'django.contrib.auth',
-    'django.contrib.sessions',
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -149,7 +148,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)]
+             "hosts": ["redis://127.0.0.1:6379/0"]
         }
     }
 }
@@ -172,14 +171,18 @@ REST_FRAMEWORK = {
     ]
 }
 
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-CELERY_BROKER_URL = "redis://redis:6379"
-CELERY_RESULT_BACKEND = "redis://redis:6379"
+CELERY_BROKER_URL = "redis://default:5j426FnDKe@redis:6379"
+CELERY_RESULT_BACKEND = "redis://default:5j426FnDKe@redis:6379"
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'djangomessenger.noreply@gmail.com'
-EMAIL_HOST_PASSWORD = 'abobaaboba'
+EMAIL_HOST_PASSWORD = 'ydujznroptencibk'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
