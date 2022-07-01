@@ -143,6 +143,12 @@ export default class Chat extends Component {
 		return (
 			<>
 				<Header>
+					<section>
+						<UserImg src={this.state.me.avatar ? this.state.me.avatar.file : ""} alt="Avatar" />
+						<UserName>
+							{this.state.me.first_name} {this.state.me.last_name}
+						</UserName>
+					</section>
 					<SearchForm onSubmit={event => this.searchUsers(event)}>
 						<Search
 							type="text"
@@ -180,17 +186,30 @@ export default class Chat extends Component {
 }
 
 const Header = styled.section`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 	position: fixed;
 	width: 100%;
 	background: #fff;
 	border-bottom: 1px solid #cacaca;
-	text-align: end;
+`;
+
+const UserImg = styled.img`
+	width: 64px;
+	height: 64px;
+	margin: 0 20px;
+	border-radius: 100px;
+`;
+
+const UserName = styled.span`
+	font-size: 20px;
+	font-weight: bold;
 `;
 
 const SearchForm = styled.form`
 	display: inline-block;
 	width: 400px;
-	margin-right: 32%;
 `;
 
 const Search = styled.input`
