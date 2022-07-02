@@ -9,3 +9,4 @@ django-cors-headers==3.11.0
 boto3==1.24.12
 django-storages==1.12.3
 django-silk==4.3.0
+gevent==21.12.0

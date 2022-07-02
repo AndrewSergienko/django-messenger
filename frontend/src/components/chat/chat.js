@@ -12,7 +12,7 @@ import LogoutImage from "../../assets/log-out.png";
 
 export default class Chat extends Component {
 	server = new Server();
-	chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${this.props.authToken}/`);
+	chatSocket = new WebSocket(`ws://164.92.166.206:8000/ws/chat/${this.props.authToken}/`);
 
 	state = {
 		username: "",

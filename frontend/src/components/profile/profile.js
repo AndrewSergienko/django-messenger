@@ -46,7 +46,7 @@ export default class Profile extends Component {
 	changeAvatar = async event => {
 		const data = new FormData();
 		data.append("file", event.target.files[0]);
-		fetch("http://127.0.0.1:8000/api/files/upload", {
+		fetch("http://164.92.166.206:8000/api/files/upload", {
 			method: "POST",
 			headers: {
 				authorization: `Token ${this.props.authToken}`,
@@ -57,7 +57,7 @@ export default class Profile extends Component {
 			.then(file => {
 				const data = new FormData();
 				data.append("file_id", file.id);
-				fetch("http://127.0.0.1:8000/api/users/me/set_avatar", {
+				fetch("http://164.92.166.206:8000/api/users/me/set_avatar", {
 					method: "POST",
 					headers: {
 						authorization: `Token ${this.props.authToken}`,
